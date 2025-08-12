@@ -2,8 +2,8 @@
 /** Do NOT edit anything beyond this point (unless u know what you do) **/
 /************************************************************************/
 
-#ifndef SOILMANAGER_CONST_H
-#define SOILMANAGER_CONST_H
+#ifndef PLANTMONITOR_CONST_H
+#define PLANTMONITOR_CONST_H
 
 enum sensorDataArrayOffsets {
   VALUE = 0,
@@ -20,4 +20,4 @@ enum TimeConversionFactorMillis {
   F_HOURS = 3600000
 };
 
-#endif  //SOILMANAGER_CONST_H
+#endif  //PLANTMONITOR_CONST_H

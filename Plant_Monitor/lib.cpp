@@ -5,8 +5,11 @@
 #include "lib.h"
 #include "const.h"
 #include "types.h"
+#include "config.h"
+#include "Arduino.h"
+#include "utils.h"
 
-int sensorData[NUM_SENSORS][3]; // Contains all relevant data about each sensor in this order: VALUE, INPUT PIN, CALIBRATED MINIMUM, CALIBRATED MAXIMUM. (See enum in lib.h)
+int sensorData[NUM_SENSORS - 1][3];  // Contains all relevant data about each sensor in this order: VALUE, INPUT PIN, CALIBRATED MINIMUM, CALIBRATED MAXIMUM. (See enum in lib.h)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////  FUNCTIONS  ///////////////////////////////////
@@ -28,18 +31,18 @@ int getHumidity(int x) {
   debug("Reading Humidity of:");
   debugLine(x);
 
-  return ( 100 - ( ( (float) avgRead(sensorData[x][PIN]) - sensorData[x][CALIBRATED_MIN] ) / ( ( sensorData[x][CALIBRATED_MAX] - sensorData[x][CALIBRATED_MIN] ) / 100.0 ) ) ); //calculate percentage of humidity (For Constants see Enum in const.h)
+  return (100 - (((float)avgRead(sensorData[x][PIN]) - sensorData[x][CALIBRATED_MIN]) / ((sensorData[x][CALIBRATED_MAX] - sensorData[x][CALIBRATED_MIN]) / 100.0)));  //calculate percentage of humidity (For Constants see Enum in const.h)
 }
 
 //Reads raw sensor data and generates an average over a defined number of meassurments
 int avgRead(int addr) {
 
-  int values = 0; //stores values for average calculation
-  for ( int i = 0; i < AVERAGE_OF; i++) {
-    values += analogRead(addr); //read input value from sensor
-    delay( T_AVERAGE * T_AVERAGE_UNIT / AVERAGE_OF ); //wait between measurments
+  int values = 0;  //stores values for average calculation
+  for (int i = 0; i < AVERAGE_OF; i++) {
+    values += analogRead(addr);                      //read input value from sensor
+    delay(T_AVERAGE * T_AVERAGE_UNIT / AVERAGE_OF);  //wait between measurments
   }
-  return (float)values / (float)AVERAGE_OF; //calculate average
+  return (float)values / (float)AVERAGE_OF;  //calculate average
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,30 +52,31 @@ int avgRead(int addr) {
 //Write human friendly names of sensors to memory.
 void initIDArray() {
   debugLine("Init IDs");
-  #if NUM_SENSORS >= 1
-  memcpy(sensorID[0], SENSOR_1_ID, sizeof(SENSOR_1_ID));
-  #endif
-  #if NUM_SENSORS >= 2
-  memcpy(sensorID[1], SENSOR_2_ID, sizeof(SENSOR_2_ID));
-  #endif
-  #if NUM_SENSORS >= 3
-  memcpy(sensorID[2], SENSOR_3_ID, sizeof(SENSOR_3_ID));
-  #endif
-  #if NUM_SENSORS >= 4
-  memcpy(sensorID[3], SENSOR_4_ID, sizeof(SENSOR_4_ID));
-  #endif
-  #if NUM_SENSORS >= 5
-  memcpy(sensorID[4], SENSOR_5_ID, sizeof(SENSOR_5_ID));
-  #endif
-  #if NUM_SENSORS >= 6
-  memcpy(sensorID[5], SENSOR_6_ID, sizeof(SENSOR_6_ID));
-  #endif
+  debugLine("Init IDs");
+#if NUM_SENSORS >= 1
+  safe_strcpy(sensorID[0], SENSOR_1_ID, sizeof(sensorID[0]));
+#endif
+#if NUM_SENSORS >= 2
+  safe_strcpy(sensorID[1], SENSOR_2_ID, sizeof(sensorID[1]));
+#endif
+#if NUM_SENSORS >= 3
+  safe_strcpy(sensorID[2], SENSOR_3_ID, sizeof(sensorID[2]));
+#endif
+#if NUM_SENSORS >= 4
+  safe_strcpy(sensorID[3], SENSOR_4_ID, sizeof(sensorID[3]));
+#endif
+#if NUM_SENSORS >= 5
+  safe_strcpy(sensorID[4], SENSOR_5_ID, sizeof(sensorID[4]));
+#endif
+#if NUM_SENSORS >= 6
+  safe_strcpy(sensorID[5], SENSOR_6_ID, sizeof(sensorID[5]));
+#endif
 }
 
 //initializes loopdate
 void initDataArray() {
 
-  #if NUM_SENSORS >= 1
+#if NUM_SENSORS >= 1
 
   debug("Init Sensor 1...");
 
@@ -82,8 +86,8 @@ void initDataArray() {
 
   debugLine("done!");
 
-  #endif
-  #if NUM_SENSORS >= 2
+#endif
+#if NUM_SENSORS >= 2
 
   debug("Init Sensor 2...");
 
@@ -93,8 +97,8 @@ void initDataArray() {
 
   debugLine("done!");
 
-  #endif
-  #if NUM_SENSORS >= 3
+#endif
+#if NUM_SENSORS >= 3
 
   debug("Init Sensor 3...");
 
@@ -104,8 +108,8 @@ void initDataArray() {
 
   debugLine("done!");
 
-  #endif
-  #if NUM_SENSORS >= 4
+#endif
+#if NUM_SENSORS >= 4
 
   debug("Init Sensor 4...");
 
@@ -115,8 +119,8 @@ void initDataArray() {
 
   debugLine("done!");
 
-  #endif
-  #if NUM_SENSORS >= 5
+#endif
+#if NUM_SENSORS >= 5
 
   debug("Init Sensor 5...");
 
@@ -126,8 +130,8 @@ void initDataArray() {
 
   debugLine("done!");
 
-  #endif
-  #if NUM_SENSORS >= 6
+#endif
+#if NUM_SENSORS >= 6
 
   debug("Init Sensor 6...");
 
@@ -137,8 +141,7 @@ void initDataArray() {
 
   debugLine("done!");
 
-  #endif
-
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -146,12 +149,11 @@ void initDataArray() {
 ///////////////////////////////////////////////////////////////////////////////
 
 //Outputs last read sensor data via activated channels
-  void printValues(){
-    SensorValue sensorValue;
-    for (int i = 0; i < NUM_SENSORS; i++) {
-      sensorValue.id = i;
-      sensorValue.friendlyName = sensorID[i]
-      sensorValue.value = sensorData[i][VALUE]
-      v_message(sensorValue)
-    }
+void printValues() {
+  SensorValue sensorValue;
+  for (int i = 0; i < NUM_SENSORS; i++) {
+    sensorValue.id = i;
+    safe_strcpy(sensorValue.friendlyName, sensorID[0], sizeof(sensorValue.friendlyName));
+    v_message(sensorValue);
   }
+}

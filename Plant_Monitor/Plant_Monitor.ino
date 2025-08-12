@@ -6,10 +6,11 @@
 /************************************************************************/
 /** Do NOT edit anything beyond this point (unless u know what you do) **/
 /************************************************************************/
+
+#include "lib.h"
+
 void setup() {
   
-      initPins();
-
     //initialize output
     initSerial();
     initLED();

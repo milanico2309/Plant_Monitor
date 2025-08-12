@@ -2,11 +2,14 @@
 /** Do NOT edit anything beyond this point (unless u know what you do) **/
 /************************************************************************/
 
-#ifndef SOILMANAGER_LIB_H
-#define SOILMANAGER_LIB_H
+#ifndef PLANTMONITOR_LIB_H
+#define PLANTMONITOR_LIB_H
+
+#include "config.h"
+
 
 extern int sensorData[NUM_SENSORS-1][3];
-extern int sensorID[NUM_SENSORS-1][21];
+extern char sensorID[NUM_SENSORS-1][21];
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////  FUNCTIONS  ///////////////////////////////////
@@ -36,15 +39,7 @@ void initIDArray();
 ///////////////////////////////   OUTPUT   ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-//outputs last read sensor data via configured channels
-void printStatus();
-
-///////////////////////////////   SERIAL   ////////////////////////////////////
-
 //send last read sensor data via serial port (serial-platter compatibel)
-void serialStatus();
+void printValues();
 
-///////////////////////////////   DISPLAY   ///////////////////////////////////
-
-//send last read sensor data via serial port (serial-platter compatibel)
-void dispStatus();
+#endif //PLANTMONITOR_LIB_H
