@@ -1,7 +1,3 @@
-/************************************************************************/
-/** Do NOT edit anything beyond this point (unless u know what you do) **/
-/************************************************************************/
-
 #ifndef PLANTMONITOR_CONST_H
 #define PLANTMONITOR_CONST_H
 

@@ -24,8 +24,8 @@
   //General Configuration
 
   #define DISP            1       //Activates Display Output (0..1)
-  #define SERIAL_OUT      0       //Activates Serial Communication (0..1)
-  #define DEBUG           0       //Activates Debug Mode (0..2)
+  #define SERIAL_OUT      1       //Activates Serial Communication (0..1)
+  #define DEBUG           1       //Activates Debug Mode (0..2)
   
   #define T_COOLDOWN      5     //time to wait between measurments(seconds)
   #define T_AVERAGE       1     //time over wich values will averaged (seconds)

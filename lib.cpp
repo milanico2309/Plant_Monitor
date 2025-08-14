@@ -1,15 +1,13 @@
-/************************************************************************/
-/** Do NOT edit anything beyond this point (unless u know what you do) **/
-/************************************************************************/
-
 #include "lib.h"
 #include "const.h"
 #include "types.h"
 #include "config.h"
 #include "Arduino.h"
-#include "utils.h"
+#include "view.h"
 
-int sensorData[NUM_SENSORS - 1][3];  // Contains all relevant data about each sensor in this order: VALUE, INPUT PIN, CALIBRATED MINIMUM, CALIBRATED MAXIMUM. (See enum in lib.h)
+int sensorData[NUM_SENSORS][3];  // Contains all relevant data about each sensor in this order: VALUE, INPUT PIN, CALIBRATED MINIMUM, CALIBRATED MAXIMUM. (See enum in lib.h)
+String sensorID[NUM_SENSORS];
+
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////  FUNCTIONS  ///////////////////////////////////
@@ -18,7 +16,7 @@ int sensorData[NUM_SENSORS - 1][3];  // Contains all relevant data about each se
 //Read all sensors and write results to memory
 void readSensorsAndUpdateMemory() {
 
-  debugLine("Reading all Sensors");
+  debugLine(F("Reading all Sensors"));
 
   for (int i = 0; i < NUM_SENSORS; i++) {
     sensorData[i][VALUE] = getHumidity(i);
@@ -28,8 +26,7 @@ void readSensorsAndUpdateMemory() {
 //Returns humidity as a percent value, based on a scale between the calibrated MIN/MAX of the sensor.
 int getHumidity(int x) {
 
-  debug("Reading Humidity of:");
-  debugLine(x);
+  debugLine("Reading Humidity of:" + x);
 
   return (100 - (((float)avgRead(sensorData[x][PIN]) - sensorData[x][CALIBRATED_MIN]) / ((sensorData[x][CALIBRATED_MAX] - sensorData[x][CALIBRATED_MIN]) / 100.0)));  //calculate percentage of humidity (For Constants see Enum in const.h)
 }
@@ -51,26 +48,26 @@ int avgRead(int addr) {
 
 //Write human friendly names of sensors to memory.
 void initIDArray() {
-  debugLine("Init IDs");
-  debugLine("Init IDs");
+  debug(F("Init IDs..."));
 #if NUM_SENSORS >= 1
-  safe_strcpy(sensorID[0], SENSOR_1_ID, sizeof(sensorID[0]));
+  sensorID[0] = SENSOR_1_ID;
 #endif
 #if NUM_SENSORS >= 2
-  safe_strcpy(sensorID[1], SENSOR_2_ID, sizeof(sensorID[1]));
+  sensorID[1] = SENSOR_2_ID;
 #endif
 #if NUM_SENSORS >= 3
-  safe_strcpy(sensorID[2], SENSOR_3_ID, sizeof(sensorID[2]));
+  sensorID[2] = SENSOR_3_ID;
 #endif
 #if NUM_SENSORS >= 4
-  safe_strcpy(sensorID[3], SENSOR_4_ID, sizeof(sensorID[3]));
+  sensorID[3] = SENSOR_4_ID;
 #endif
 #if NUM_SENSORS >= 5
-  safe_strcpy(sensorID[4], SENSOR_5_ID, sizeof(sensorID[4]));
+  sensorID[4] = SENSOR_5_ID;
 #endif
 #if NUM_SENSORS >= 6
-  safe_strcpy(sensorID[5], SENSOR_6_ID, sizeof(sensorID[5]));
+  sensorID[5] = SENSOR_6_ID;
 #endif
+debugLine(F("done!"));
 }
 
 //initializes loopdate
@@ -78,18 +75,18 @@ void initDataArray() {
 
 #if NUM_SENSORS >= 1
 
-  debug("Init Sensor 1...");
+  debug(F("Init Sensor 1..."));
 
   sensorData[0][PIN] = SENSOR_1_PIN;
   sensorData[0][CALIBRATED_MIN] = SENSOR_1_CALIBRATED_MIN;
   sensorData[0][CALIBRATED_MAX] = SENSOR_1_CALIBRATED_MAX;
 
-  debugLine("done!");
+  debugLine(F("done!"));
 
 #endif
 #if NUM_SENSORS >= 2
 
-  debug("Init Sensor 2...");
+  debug(F("Init Sensor 2..."));
 
   sensorData[1][PIN] = SENSOR_2_PIN;
   sensorData[1][CALIBRATED_MIN] = SENSOR_2_CALIBRATED_MIN;
@@ -100,46 +97,46 @@ void initDataArray() {
 #endif
 #if NUM_SENSORS >= 3
 
-  debug("Init Sensor 3...");
+  debug(F("Init Sensor 3..."));
 
   sensorData[2][PIN] = SENSOR_3_PIN;
   sensorData[2][CALIBRATED_MIN] = SENSOR_3_CALIBRATED_MIN;
   sensorData[2][CALIBRATED_MAX] = SENSOR_3_CALIBRATED_MAX;
 
-  debugLine("done!");
+  debugLine(F("done!"));
 
 #endif
 #if NUM_SENSORS >= 4
 
-  debug("Init Sensor 4...");
+  debug(F("Init Sensor 4..."));
 
   sensorData[3][PIN] = SENSOR_4_PIN;
   sensorData[3][CALIBRATED_MIN] = SENSOR_4_CALIBRATED_MIN;
   sensorData[3][CALIBRATED_MAX] = SENSOR_4_CALIBRATED_MAX;
 
-  debugLine("done!");
+  debugLine(F("done!"));
 
 #endif
 #if NUM_SENSORS >= 5
 
-  debug("Init Sensor 5...");
+  debug(F("Init Sensor 5..."));
 
   sensorData[4][PIN] = SENSOR_5_PIN;
   sensorData[4][CALIBRATED_MIN] = SENSOR_5_CALIBRATED_MIN;
   sensorData[4][CALIBRATED_MAX] = SENSOR_5_CALIBRATED_MAX;
 
-  debugLine("done!");
+  debugLine(F("done!"));
 
 #endif
 #if NUM_SENSORS >= 6
 
-  debug("Init Sensor 6...");
+  debug(F("Init Sensor 6..."));
 
   sensorData[5][PIN] = SENSOR_6_PIN;
   sensorData[5][CALIBRATED_MIN] = SENSOR_6_CALIBRATED_MIN;
   sensorData[5][CALIBRATED_MAX] = SENSOR_6_CALIBRATED_MAX;
 
-  debugLine("done!");
+  debugLine(F("done!"));
 
 #endif
 }
@@ -153,7 +150,7 @@ void printValues() {
   SensorValue sensorValue;
   for (int i = 0; i < NUM_SENSORS; i++) {
     sensorValue.id = i;
-    safe_strcpy(sensorValue.friendlyName, sensorID[0], sizeof(sensorValue.friendlyName));
+    sensorValue.friendlyName = sensorID[0];
     v_message(sensorValue);
   }
 }

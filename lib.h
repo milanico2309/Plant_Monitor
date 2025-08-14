@@ -1,15 +1,11 @@
-/************************************************************************/
-/** Do NOT edit anything beyond this point (unless u know what you do) **/
-/************************************************************************/
-
 #ifndef PLANTMONITOR_LIB_H
 #define PLANTMONITOR_LIB_H
 
 #include "config.h"
+#include "Arduino.h"
 
-
-extern int sensorData[NUM_SENSORS-1][3];
-extern char sensorID[NUM_SENSORS-1][21];
+extern int sensorData[NUM_SENSORS][3];
+extern String sensorID[NUM_SENSORS];
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////  FUNCTIONS  ///////////////////////////////////
