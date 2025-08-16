@@ -12,11 +12,9 @@ void setup() {
   //initialize output
   initSerial();
   initDisplay();
-
   //Initialize memory
   initIDArray();
-  // initDataArray();
-
+  initDataArray();
   debugLine(F("starting..."));
 }
 

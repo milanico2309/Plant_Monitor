@@ -4,15 +4,11 @@
 #include "types.h"
 #include "Arduino.h"
 
-void message(String message);
-
 void messageLine(String message);
 
 void v_message(SensorValue SensorValue);
 
-void debug(String msg);
-
-void debugLine(String msg);
+void debugLine(const __FlashStringHelper* msg);
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////   SERIAL   ////////////////////////////////////
@@ -20,11 +16,6 @@ void debugLine(String msg);
 
 //Initialize Serial Communication
 void initSerial();
-
-void debugLineSerial(String msg);
-
-void debugSerial(String msg);
-
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////   DISPLAY   ///////////////////////////////////
