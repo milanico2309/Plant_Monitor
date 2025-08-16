@@ -107,6 +107,6 @@ void printDebugBuffer(){
     display.println(debug_buffer[(debugBufferLine+i)%DEBUG_BUFFER_LINES]); //We start at debugLine+1 as its the least recently written line and work our way through the ringbuffer.
   }
   display.display();
-  delay(100);
+  delay(50);
 }
 
