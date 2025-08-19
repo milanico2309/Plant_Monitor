@@ -140,17 +140,3 @@ void initDataArray() {
 
 #endif
 }
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////   OUTPUT   ////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-//Outputs last read sensor data via activated channels
-void printValues() {
-  SensorValue sensorValue;
-  for (int i = 0; i < NUM_SENSORS; i++) {
-    sensorValue.id = i;
-    sensorValue.friendlyName = sensorID[0];
-    v_message(sensorValue);
-  }
-}

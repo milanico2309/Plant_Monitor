@@ -4,10 +4,6 @@
 #include "types.h"
 #include "Arduino.h"
 
-void messageLine(String message);
-
-void v_message(SensorValue SensorValue);
-
 void debugLine(const __FlashStringHelper* msg);
 
 ///////////////////////////////////////////////////////////////////////////////

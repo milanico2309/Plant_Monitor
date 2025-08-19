@@ -20,20 +20,17 @@
 #endif  //DEBUG
 #endif  //DISP
 
-void messageLine(String message) {
-#if SERIAL_OUT >= 1
-  Serial.println(message);
-#endif  //SERIAL_OUT
-}
 
-void v_message(SensorValue sensorValue) {
-}
 
 void debugLine(const __FlashStringHelper* msg) {
 #if DEBUG >= 1
   debugLineSerial(msg);
   debugLineDisplay(msg);
 #endif  //DEBUG
+}
+
+void printMainScreen(){
+  
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,10 +43,6 @@ void initSerial() {
   Serial.begin(BAUDRATE);  //open serial port
   Serial.println(F("Completed serial setup!"));
 #endif  //SERIAL_OUT
-}
-
-void debugLineSerial(String msg) {
-  Serial.println(msg);
 }
 
 void debugLineSerial(const __FlashStringHelper* msg) {
