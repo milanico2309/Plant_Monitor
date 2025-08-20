@@ -43,13 +43,13 @@
   #define SENSOR_1_PIN            14            //To which Pin the Sensor is connected
 
   //Sensor 2
-  #define SENSOR_2_ID             F("Monstera") //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
+  #define SENSOR_2_ID             F("unknown") //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   #define SENSOR_2_CALIBRATED_MIN 350           //meassured analog value if sensor is in water.
   #define SENSOR_2_CALIBRATED_MAX 800           //meassured analog value if sensor is dry.
   #define SENSOR_2_PIN            14            //To which Pin the Sensor is connected
 
   //Sensor 3
-  #define SENSOR_3_ID             F("Monstera") //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
+  #define SENSOR_3_ID             F("Gl.Feder") //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   #define SENSOR_3_CALIBRATED_MIN 350           //meassured analog value if sensor is in water.
   #define SENSOR_3_CALIBRATED_MAX 800           //meassured analog value if sensor is dry.
   #define SENSOR_3_PIN            14            //To which Pin the Sensor is connected
