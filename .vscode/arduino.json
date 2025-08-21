@@ -1,0 +1,7 @@
+{
+    "board": "arduino:avr:nano",
+    "port": "COM4",
+    "configuration": "cpu=atmega328old",
+    "sketch": "Plant_Monitor.ino",
+    "programmer": "avrisp"
+}

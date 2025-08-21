@@ -1,5 +1,5 @@
 // Author: Milan Stuhlsatz
-// Date: 12.08.2025
+// Date: 21.08.2025
 // Versiom: ALPHA
 // Licens: MIT
 
@@ -9,16 +9,15 @@
 
 void setup() {
 
-  initTime();
   //initialize output
-  initSerial();
-  initDisplay();
+  View::initSerial();
+  View::initDisplay();
   //Initialize memory
-  initIDArray();
-  initDataArray();
-  debugLine(F("starting..."));
+  Lib::initIDArray();
+  View::debugLine(F("starting..."));
 }
 
 void loop() {
-  printMainScreen();
+  View::printMainScreen();
+  Lib::readSensorsAndUpdateMemory();
 }

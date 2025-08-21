@@ -1,77 +1,76 @@
-#include "HardwareSerial.h"
+#include <Arduino.h>
+#include <HardwareSerial.h>
 #include "config.h"
-#include "types.h"
 #include "view.h"
 #include "lib.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
-#include <Arduino.h>
+
+namespace View {
 
 
-
-#if DISP >= 1
+#ifdef DISP
 Adafruit_SH1106G display = Adafruit_SH1106G(128, 64, &Wire);
 int dispScrollOffset = 0;
 int sensorIDOffset = 0;
-#if DEBUG >= 1
+#ifdef DEBUG_DISP
 #define DEBUG_BUFFER_LINES 8
 #define DEBUG_BUFFER_ROWS 22
+long lastDebug = 0;
 char debug_buffer[DEBUG_BUFFER_LINES][DEBUG_BUFFER_ROWS];
 int debugBufferLine = 0;
-void debugBufferNextLine();
-void printDebugBuffer();
-void debugLineDisplay(const __FlashStringHelper* msg);
-void debugLineSerial(const __FlashStringHelper* msg);
-#endif  //DEBUG
-#endif  //DISP
-
-
+#endif //DEBUG_DISP
+#endif //DISP
+long millisOffset = 12120000;
+static void debugBufferNextLine();
+static void printDebugBuffer();
+static void debugLineDisplay(const __FlashStringHelper* msg);
+static void debugLineSerial(const __FlashStringHelper* msg);
 
 void debugLine(const __FlashStringHelper* msg) {
-#if DEBUG >= 1
+#if defined(DEBUG_DISP) || defined(DEBUG_SERIAL)
   debugLineSerial(msg);
   debugLineDisplay(msg);
-#endif  //DEBUG
+#endif //DEBUG_DISP || DEBUG_SERIAL
+}
+
+void setMillisOffset(long offset) {
+  millisOffset = offset;
 }
 
 void printMainScreen() {
-  //debugLine(F("Printing Main Screen..."));
-  display.clearDisplay();
-  display.setTextSize(2);
+  if (lastDebug + T_SHOWDEBUG < millis()) {
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.invertDisplay(false);
 
-  int y = dispScrollOffset;
-  while(y < 129){
-    display.setCursor(0, y);
-    display.print(sensorID[sensorIDOffset]);
-    sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS;
-    display.setCursor(106, y);
-    int z = random(1,99);
-    if(z<10)display.setCursor(118, y);
-    else display.setCursor(106, y);
-    display.print(z);
-    y+=16;
+    int y = dispScrollOffset;
+    while (y < 129) {
+      display.setCursor(0, y);
+      display.print(Lib::sensorID[sensorIDOffset]);
+      display.setCursor(106, y);
+      display.print(Lib::sensorData[sensorIDOffset]);
+      sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS;
+      y += 16;
+    }
+    dispScrollOffset = (dispScrollOffset - 1) % -16;
+    if (dispScrollOffset == 0) { sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS; }
+
+    display.fillRect(0, 0, 128, 10, SH110X_BLACK);
+    display.setTextSize(1);
+    display.setCursor(0, 0);
+    unsigned long actualSeconds = (millis() + millisOffset) / 1000;
+    unsigned long daySeconds = actualSeconds % 86400;
+    int timeSeconds = daySeconds % 60;
+    int timeMinutes = (daySeconds / 60) % 60;
+    int timeHours = (daySeconds / 3600) % 24;
+    char buf[8];
+    sprintf(buf, "%02d:%02d:%02d", timeHours, timeMinutes, timeSeconds);
+    display.println(buf);
+    display.drawFastHLine(0, 9, 128, SH110X_WHITE);
+
+    display.display();
   }
-  dispScrollOffset = (dispScrollOffset-1)%-16;
-  if(dispScrollOffset == 0){sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS;}
-  display.fillRect(0, 0, 128, 10, SH110X_BLACK);
-  display.setTextSize(1);
-  display.setCursor(0, 0);
-  display.invertDisplay(false);
-
-  millisOffset = 11640000;
-  unsigned long actualSeconds = (millis()+millisOffset)/1000;
-  unsigned long daySeconds = actualSeconds % 86400;
-  int timeSeconds = daySeconds % 60;
-  int timeMinutes = (daySeconds / 60) % 60;
-  int timeHours = (daySeconds / 3600) % 24;
-  char buf[8];;;
-  sprintf(buf,"%02d:%02d:%02d",timeHours,timeMinutes,timeSeconds);
-  display.println(buf);
-
-  display.drawFastHLine(0, 9, 128, SH110X_WHITE);
-
-  display.display();
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,14 +79,16 @@ void printMainScreen() {
 
 //Initialize Serial Communication
 void initSerial() {
-#if SERIAL_OUT >= 1
+#ifdef SERIAL_OUT
   Serial.begin(BAUDRATE);  //open serial port
   Serial.println(F("Completed serial setup!"));
 #endif  //SERIAL_OUT
 }
 
 void debugLineSerial(const __FlashStringHelper* msg) {
+  #ifdef DEBUG_SERIAL
   Serial.println(msg);
+  #endif  //DEBUG_SERIAL
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -96,8 +97,7 @@ void debugLineSerial(const __FlashStringHelper* msg) {
 
 //Initialize the Display
 void initDisplay() {
-#if DISP >= 1
-
+#ifdef DISP
   debugLineSerial(F("Setup Display..."));
   display.begin(0x3C, true);  // Address on bus, 0x3C default
   display.cp437(true);
@@ -120,15 +120,17 @@ void initDisplay() {
   display.display();
   delay(200);
   debugLine(F("Completed Display setup!"));
-
 #endif  //DISP
 }
 
 void debugLineDisplay(const __FlashStringHelper* msg) {
+#ifdef DEBUG_DISP
+  lastDebug = millis();
   debugBufferNextLine();
   strncpy_P(debug_buffer[debugBufferLine], (PGM_P)msg, DEBUG_BUFFER_ROWS - 1);  // Kopie von Flash in SRAM
   debug_buffer[debugBufferLine][DEBUG_BUFFER_ROWS - 1] = '\0';                  // Sicherheit: Nullterminierung
   printDebugBuffer();
+#endif  //DEBUG_DISP
 }
 
 void debugBufferNextLine() {
@@ -145,3 +147,4 @@ void printDebugBuffer() {
   display.display();
   delay(50);
 }
+}  // namespace View

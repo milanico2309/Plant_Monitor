@@ -1,12 +1,15 @@
-#ifndef OUT_H
-#define OUT_H
+#ifndef VIEW_H
+#define VIEW_H
 
-#include "types.h"
 #include "Arduino.h"
+
+namespace View {
 
 void debugLine(const __FlashStringHelper* msg);
 
 void printMainScreen();
+
+void setMillisOffset(long offset);
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////   SERIAL   ////////////////////////////////////
@@ -22,4 +25,7 @@ void initSerial();
 //Initialize the Display
 void initDisplay();
 
-#endif  //OUT_H
+} // namespace View
+
+#endif  //VIEW_H
+

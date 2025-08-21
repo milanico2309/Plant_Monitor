@@ -4,7 +4,9 @@
 #include "config.h"
 #include "Arduino.h"
 
-extern int sensorData[NUM_SENSORS][3];
+namespace Lib {
+
+extern int sensorData[NUM_SENSORS];
 extern const __FlashStringHelper* sensorID[NUM_SENSORS];
 extern long millisOffset;
 extern bool timeIsSet;
@@ -17,30 +19,13 @@ extern bool timeIsSet;
 //checks all sensors
 void readSensorsAndUpdateMemory();
 
-//Reads raw sensor data and generates an average over a defined number of meassurments
-int avgRead(int x);
-
-//Returns humidity as a percent value, based on a scale between the calibrated MIN/MAX of the sensor.
-int getHumidity(int x);
-
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////    SETUP    ///////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void initTime();
-
-//initialize sensor data
-void initDataArray();
-
 //initialize Array Containing Names
 void initIDArray();
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////   OUTPUT   ////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-//send last read sensor data via serial port (serial-platter compatibel)
-void printValues();
+} // namespace Lib
 
 #endif //PLANTMONITOR_LIB_H
