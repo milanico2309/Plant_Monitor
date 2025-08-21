@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PLANTMONITOR_LIB_H
 #define PLANTMONITOR_LIB_H
 

@@ -1,3 +1,4 @@
+#pragma once
 // Author: Milan Stuhlsatz
 // Date: 21.08.2025
 // Versiom: ALPHA
