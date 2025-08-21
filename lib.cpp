@@ -1,7 +1,7 @@
-#include "lib.h"
-#include "config.h"
+#include "lib.hpp"
+#include "config.hpp"
 #include "Arduino.h"
-#include "view.h"
+#include "view.hpp"
 
 namespace Lib {
 

@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
-#include "config.h"
-#include "view.h"
-#include "lib.h"
+#include "config.hpp"
+#include "view.hpp"
+#include "lib.hpp"
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
 

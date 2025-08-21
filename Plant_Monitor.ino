@@ -3,8 +3,8 @@
 // Versiom: ALPHA
 // Licens: MIT
 
-#include "lib.h"
-#include "view.h"
+#include "lib.hpp"
+#include "view.hpp"
 #include <Arduino.h>
 
 void setup() {

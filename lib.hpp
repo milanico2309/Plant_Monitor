@@ -1,7 +1,7 @@
 #ifndef PLANTMONITOR_LIB_H
 #define PLANTMONITOR_LIB_H
 
-#include "config.h"
+#include "config.hpp"
 #include "Arduino.h"
 
 namespace Lib {
