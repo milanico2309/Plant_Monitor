@@ -15,7 +15,10 @@ const __FlashStringHelper* sensorID[NUM_SENSORS];
 //Reads raw sensor data and generates an average over a defined number of meassurments
 int avgRead(int addr) {
   int values = 0;  //stores values for average calculation
-  for (int i = 0; i < AVERAGE_OF; i++) values += analogRead(addr);            //read input value from sensor
+  for (int i = 0; i < AVERAGE_OF; i++) {
+		values += analogRead(addr);            //read input value from sensor
+		delay(25);														 //wait a moment
+	}
   return (float)values / (float)AVERAGE_OF;  //calculate average
 }
 
