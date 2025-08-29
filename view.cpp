@@ -64,8 +64,8 @@ void printMainScreen() {
     int timeSeconds = daySeconds % 60;
     int timeMinutes = (daySeconds / 60) % 60;
     int timeHours = (daySeconds / 3600) % 24;
-    char buf[8];
-    sprintf(buf, "%02d:%02d:%02d", timeHours, timeMinutes, timeSeconds);
+    char buf[9];
+    snprintf(buf, sizeof(buf), "%02d:%02d:%02d", timeHours, timeMinutes, timeSeconds);
     display.println(buf);
     display.drawFastHLine(0, 9, 128, SH110X_WHITE);
 

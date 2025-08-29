@@ -15,8 +15,8 @@ struct SensorContext {
 
 extern SensorContext ctx;
 extern const __FlashStringHelper* sensorID[NUM_SENSORS];
-extern long millisOffset;
-extern bool timeIsSet;
+//extern long millisOffset;
+//extern bool timeIsSet;
 
 
 ///////////////////////////////////////////////////////////////////////////////
