@@ -7,7 +7,13 @@
 
 namespace Lib {
 
-extern int sensorData[NUM_SENSORS];
+struct SensorContext {
+    int powerPins[MAX_SENSORS];
+    int readPins[MAX_SENSORS];
+    int values[MAX_SENSORS];
+};
+
+extern SensorContext ctx;
 extern const __FlashStringHelper* sensorID[NUM_SENSORS];
 extern long millisOffset;
 extern bool timeIsSet;
@@ -23,6 +29,9 @@ void readSensorsAndUpdateMemory();
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////    SETUP    ///////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+//initialize Sensor Context
+void initCtx();
 
 //initialize Array Containing Names
 void initIDArray();

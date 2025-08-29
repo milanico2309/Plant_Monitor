@@ -49,7 +49,7 @@ void printMainScreen() {
       display.setCursor(0, y);
       display.print(Lib::sensorID[sensorIDOffset]);
       display.setCursor(106, y);
-      display.print(Lib::sensorData[sensorIDOffset]);
+      display.print(Lib::ctx.values[sensorIDOffset]);
       sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS;
       y += 16;
     }

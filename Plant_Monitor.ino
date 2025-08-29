@@ -13,6 +13,7 @@ void setup() {
   View::initSerial();
   View::initDisplay();
   //Initialize memory
+  Lib::initCtx();
   Lib::initIDArray();
   View::debugLine(F("starting..."));
 }

@@ -5,8 +5,8 @@
 
 namespace Lib {
 
-int sensorData[NUM_SENSORS];  // Contains all relevant data about each sensor in this order: VALUE, INPUT PIN, CALIBRATED MINIMUM, CALIBRATED MAXIMUM. (See enum in lib.h)
 const __FlashStringHelper* sensorID[NUM_SENSORS];
+
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////  FUNCTIONS  ///////////////////////////////////
@@ -23,21 +23,47 @@ int avgRead(int addr) {
 }
 
 //Returns humidity as a percent value, based on a scale between the calibrated MIN/MAX of the sensor.
-int getHumidity(int x) {
-  return (100 - (((float)avgRead(14 + x) - SENSOR_CALIBRATED_MIN) / ((SENSOR_CALIBRATED_MAX - SENSOR_CALIBRATED_MIN) / 100.0)));  //calculate percentage of humidity (For Constants see Enum in const.h)
+int getHumidity(const int x) {
+  //Power the sensor if applicable
+  if (ctx.powerPins[x] != -1) {
+    digitalWrite(ctx.powerPins[x], HIGH);  //power the sensor
+    delay(10);                             //wait a moment for the sensor to power up
+  }
+  //Read the sensor
+  int val = (100 - (((float)avgRead(ctx.readPins[x]) - SENSOR_CALIBRATED_MIN) / ((SENSOR_CALIBRATED_MAX - SENSOR_CALIBRATED_MIN) / 100.0)));  //calculate percentage of humidity
+  //Power down the sensor if applicable
+  if (ctx.powerPins[x] != -1) {
+    digitalWrite(ctx.powerPins[x], LOW);  //power down the sensor
+}
+return constrain(val, 0, 100);  //limit value to between 0 and 100%
 }
 
 //Read all sensors and write results to memory
 void readSensorsAndUpdateMemory() {
-
   for (int i = 0; i < NUM_SENSORS; i++) {
-    sensorData[i] = getHumidity(i);
+    ctx.values[i] = getHumidity(i);
   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////    SETUP    ///////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+void initCtx() {
+    ctx = {
+    .powerPins = {SENSOR_1_PPIN, SENSOR_2_PPIN, SENSOR_3_PPIN, SENSOR_4_PPIN, SENSOR_5_PPIN, SENSOR_6_PPIN},
+    .readPins = {SENSOR_1_PIN, SENSOR_2_PIN, SENSOR_3_PIN, SENSOR_4_PIN, SENSOR_5_PIN, SENSOR_6_PIN},
+    .values = {0, 0, 0, 0, 0, 0 }
+    };
+
+    for (int i = 0; i < NUM_SENSORS; i++) {
+    if (ctx.powerPins[i] != -1) {
+      pinMode(ctx.powerPins[i], OUTPUT);
+      digitalWrite(ctx.powerPins[i], LOW);  //make sure sensor is off
+    }
+    pinMode(ctx.readPins[i], INPUT);
+  }
+}
 
 //Write human friendly names of sensors to memory.
 void initIDArray() {

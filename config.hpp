@@ -79,6 +79,8 @@
 /************************************************************************/
 
 //PIN Config.
+  const int MAX_SENSORS = 6;      //Maximum amount of sensors supported by this software.
+  static_assert(NUM_SENSORS <= MAX_SENSORS, "Error: NUM_SENSORS exceeds MAX_SENSORS. Please adjust configuration.");
 
 //Advanced Config.
   #define BAUDRATE          57600    //Boudrate for serial connection, match this to your terminal. If you don't know what this means, don't change it.
