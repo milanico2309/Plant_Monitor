@@ -140,14 +140,14 @@ void valuesSerialPrint() {
 }
 
 void valuesSerialPlot() {
-  #ifdef SERIAL_OUT
+  #ifdef SERIAL_PLOT
   for (int i = 0; i < NUM_SENSORS; i++) {
     messageSerial(Lib::ctx.values[i]);
     messageSerial(' ');
     }
   messageLineSerial(F(""));
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //SERIAL_OUT
+  #endif  //SERIAL_PLOT
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -24,6 +24,7 @@
   #define DISP                  //Activates Display Output
   #define SERIAL_OUT            //Activates Serial Communication
   #define DEBUG_SERIAL          //Activates Debug outtput via Serial
+  //#define SERIAL_PLOT           //Activates Serial Plotter output
   #define DEBUG_DISP            //Activates Debug output via Display
 
   const int T_SHOWDEBUG = 1000;
