@@ -11,6 +11,7 @@
 #ifndef SOILMANAGER_CONFIG_H
 #define SOILMANAGER_CONFIG_H
 
+#include <Arduino.h>
 
 /*****************************/
 /**   Setup your project    **/
