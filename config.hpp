@@ -24,7 +24,7 @@
   #define DISP                  //Activates Display Output
   #define SERIAL_OUT            //Activates Serial Communication
   #define DEBUG_SERIAL          //Activates Debug outtput via Serial
-  #define DEBUG_DISP            //Activates Debug output via Display
+  //#define DEBUG_DISP            //Activates Debug output via Display
 
   const int T_SHOWDEBUG = 1000;
   const int AVERAGE_OF  = 5;     //how many readings will be averaged per measurement.
@@ -84,6 +84,7 @@
   static_assert(NUM_SENSORS <= MAX_SENSORS, "Error: NUM_SENSORS exceeds MAX_SENSORS. Please adjust configuration.");
 
 //Advanced Config.
+  const int SERIAL_TRANSMIT_DELAY = 5; //Delay in ms between sending messages via Serial. Increase this if you experience problems with your serial connection.
   #define BAUDRATE          57600    //Boudrate for serial connection, match this to your terminal. If you don't know what this means, don't change it.
   #define ANALOG_REF        DEFAULT  //Configures the reference voltage used for analog input.
 #endif

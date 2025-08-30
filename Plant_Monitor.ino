@@ -19,6 +19,14 @@ void setup() {
 }
 
 void loop() {
+
   View::printMainScreen();
-  Lib::readSensorsAndUpdateMemory();
+
+  if(millis() % 10000 < 500) { //every 10 seconds
+    View::printUpdateScreen();
+    Lib::readSensorsAndUpdateMemory();
+    View::debugLine(F("Reading done."));
+    View::valuesSerialPrint();
+    View::valuesSerialPlot();
+  }
 }

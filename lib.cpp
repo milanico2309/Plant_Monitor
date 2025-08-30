@@ -25,16 +25,16 @@ int avgRead(int addr) {
 //Returns humidity as a percent value, based on a scale between the calibrated MIN/MAX of the sensor.
 int getHumidity(const int x) {
   //Power the sensor if applicable
-  if (ctx.powerPins[x] != -1) {
-    digitalWrite(ctx.powerPins[x], HIGH);  //power the sensor
-    delay(10);                             //wait a moment for the sensor to power up
-  }
+  // if (ctx.powerPins[x] != -1) {
+  //   digitalWrite(ctx.powerPins[x], HIGH);  //power the sensor
+  //   delay(10);                             //wait a moment for the sensor to power up
+  // }
   //Read the sensor
-  int val = (100 - (((float)avgRead(ctx.readPins[x]) - SENSOR_CALIBRATED_MIN) / ((SENSOR_CALIBRATED_MAX - SENSOR_CALIBRATED_MIN) / 100.0)));  //calculate percentage of humidity
+  int val = (100 - (((float)avgRead(A0) - SENSOR_CALIBRATED_MIN) / ((SENSOR_CALIBRATED_MAX - SENSOR_CALIBRATED_MIN) / 100.0)));  //calculate percentage of humidity
   //Power down the sensor if applicable
-  if (ctx.powerPins[x] != -1) {
-    digitalWrite(ctx.powerPins[x], LOW);  //power down the sensor
-}
+//   if (ctx.powerPins[x] != -1) {
+//     digitalWrite(ctx.powerPins[x], LOW);  //power down the sensor
+// }
 return constrain(val, 0, 100);  //limit value to between 0 and 100%
 }
 
@@ -51,18 +51,18 @@ void readSensorsAndUpdateMemory() {
 
 void initCtx() {
     ctx = {
-    .powerPins = {SENSOR_1_PPIN, SENSOR_2_PPIN, SENSOR_3_PPIN, SENSOR_4_PPIN, SENSOR_5_PPIN, SENSOR_6_PPIN},
-    .readPins = {SENSOR_1_PIN, SENSOR_2_PIN, SENSOR_3_PIN, SENSOR_4_PIN, SENSOR_5_PIN, SENSOR_6_PIN},
+    // .powerPins = {SENSOR_1_PPIN, SENSOR_2_PPIN, SENSOR_3_PPIN, SENSOR_4_PPIN, SENSOR_5_PPIN, SENSOR_6_PPIN},
+    // .readPins = {SENSOR_1_PIN, SENSOR_2_PIN, SENSOR_3_PIN, SENSOR_4_PIN, SENSOR_5_PIN, SENSOR_6_PIN},
     .values = {0, 0, 0, 0, 0, 0 }
     };
 
-    for (int i = 0; i < NUM_SENSORS; i++) {
-    if (ctx.powerPins[i] != -1) {
-      pinMode(ctx.powerPins[i], OUTPUT);
-      digitalWrite(ctx.powerPins[i], LOW);  //make sure sensor is off
-    }
-    pinMode(ctx.readPins[i], INPUT);
-  }
+  //   for (int i = 0; i < NUM_SENSORS; i++) {
+  //   if (ctx.powerPins[i] != -1) {
+  //     pinMode(ctx.powerPins[i], OUTPUT);
+  //     digitalWrite(ctx.powerPins[i], LOW);  //make sure sensor is off
+  //   }
+  //   pinMode(ctx.readPins[i], INPUT);
+  // }
 }
 
 //Write human friendly names of sensors to memory.

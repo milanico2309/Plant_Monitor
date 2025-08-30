@@ -8,7 +8,6 @@ namespace View {
 
 void debugLine(const __FlashStringHelper* msg);
 
-void printMainScreen();
 
 void setMillisOffset(long offset);
 
@@ -19,12 +18,20 @@ void setMillisOffset(long offset);
 //Initialize Serial Communication
 void initSerial();
 
+void valuesSerialPrint();
+
+void valuesSerialPlot();
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////   DISPLAY   ///////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 //Initialize the Display
 void initDisplay();
+//Prints the main screen to the display
+void printMainScreen();
+//Prints screen to the display when reading sensors and updating memory
+void printUpdateScreen();
 
 } // namespace View
 

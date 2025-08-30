@@ -8,8 +8,8 @@
 namespace Lib {
 
 struct SensorContext {
-    int powerPins[MAX_SENSORS];
-    int readPins[MAX_SENSORS];
+    // int powerPins[MAX_SENSORS];
+    // int readPins[MAX_SENSORS];
     int values[MAX_SENSORS];
 };
 
