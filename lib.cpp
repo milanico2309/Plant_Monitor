@@ -35,7 +35,7 @@ int getHumidity(const int x) {
 //   if (ctx.powerPins[x] != -1) {
 //     digitalWrite(ctx.powerPins[x], LOW);  //power down the sensor
 // }
-return constrain(val, 0, 100);  //limit value to between 0 and 100%
+return constrain(val, 0, 99);  //limit value to between 0 and 99%
 }
 
 //Read all sensors and write results to memory
