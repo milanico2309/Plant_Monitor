@@ -128,6 +128,7 @@ void messageSerial(T msg) {
 
 void valuesSerialPrint() {
   #ifdef SERIAL_OUT
+  messageSerial('>');
   for (int i = 0; i < NUM_SENSORS; i++) {
     messageSerial(Lib::sensorID[i]);
     messageSerial(F(": "));
@@ -196,7 +197,7 @@ void debugLineDisplay(const __FlashStringHelper* msg) {
 
 void debugBufferNextLine() {
   #ifdef DEBUG_DISP
-  debugBufferLine = (debugBufferLine + 1) % DEBUG_BUFFER_LINES;  //after max rollover to 0
+  debugBufferLine = (debugBufferLine + 1) & (DEBUG_BUFFER_LINES - 1);  //after max rollover to 0
   #endif  //DEBUG_DISP
 }
 

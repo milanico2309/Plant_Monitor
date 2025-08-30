@@ -41,7 +41,7 @@
   const int SENSOR_1_PIN =        A0;           //Analog Pin to which the sensor is connected.
   const int SENSOR_1_PPIN =       11;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
   //Sensor 2
-  #define SENSOR_2_ID             F("Schäffl.")  //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
+  #define SENSOR_2_ID             F("Schaefl.")  //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   const int SENSOR_2_PIN =        A1;           //Analog Pin to which the sensor is connected.
   const int SENSOR_2_PPIN =       12;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
 

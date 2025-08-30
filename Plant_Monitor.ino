@@ -23,9 +23,10 @@ void loop() {
   View::printMainScreen();
 
   if(millis() % 10000 < 500) { //every 10 seconds
+    View::debugLine(F("Start reading"));
     View::printUpdateScreen();
     Lib::readSensorsAndUpdateMemory();
-    View::debugLine(F("Reading done."));
+    View::debugLine(F("Reading done"));
     View::valuesSerialPrint();
     View::valuesSerialPlot();
   }
