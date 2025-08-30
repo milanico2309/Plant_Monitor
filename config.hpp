@@ -24,7 +24,7 @@
   #define DISP                  //Activates Display Output
   #define SERIAL_OUT            //Activates Serial Communication
   #define DEBUG_SERIAL          //Activates Debug outtput via Serial
-  //#define DEBUG_DISP            //Activates Debug output via Display
+  #define DEBUG_DISP            //Activates Debug output via Display
 
   const int T_SHOWDEBUG = 1000;
   const int AVERAGE_OF  = 5;     //how many readings will be averaged per measurement.
@@ -40,7 +40,7 @@
   const int SENSOR_1_PIN =        A0;           //Analog Pin to which the sensor is connected.
   const int SENSOR_1_PPIN =       11;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
   //Sensor 2
-  #define SENSOR_2_ID             F("unknown")  //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
+  #define SENSOR_2_ID             F("Schäffl.")  //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   const int SENSOR_2_PIN =        A1;           //Analog Pin to which the sensor is connected.
   const int SENSOR_2_PPIN =       12;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
 
@@ -68,8 +68,8 @@
   //These values are used to map the analog reading to a percentage value.
   //You need to measure these values for your specific sensor and setup.
   
-  const int SENSOR_CALIBRATED_MIN = 350; //meassured analog value if sensor is in water.
-  const int SENSOR_CALIBRATED_MAX = 800; //meassured analog value if sensor is dry.
+  const int SENSOR_CALIBRATED_MIN = 360; //meassured analog value if sensor is in water.
+  const int SENSOR_CALIBRATED_MAX = 790; //meassured analog value if sensor is dry.
 
 
 
