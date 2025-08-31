@@ -12,6 +12,34 @@ SensorContext ctx;
 ///////////////////////////////  FUNCTIONS  ///////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+// Analog-Pins
+//We use this instead of an array to keep the memory footprint low (keep things in PROGMEM)
+uint8_t getSensorPin(uint8_t sensorIndex) {
+  switch(sensorIndex) {
+    case 0: return SENSOR_1_PIN;
+    case 1: return SENSOR_2_PIN;
+    case 2: return SENSOR_3_PIN;
+    case 3: return SENSOR_4_PIN;
+    case 4: return SENSOR_5_PIN;
+    case 5: return SENSOR_6_PIN;
+    default: return 255;
+  }
+}
+
+// Power-Pins
+//We use this instead of an array to keep the memory footprint low (keep things in PROGMEM)
+uint8_t getPowerPin(uint8_t sensorIndex) {
+  switch(sensorIndex) {
+    case 0: return SENSOR_1_PPIN;
+    case 1: return SENSOR_2_PPIN;
+    case 2: return SENSOR_3_PPIN;
+    case 3: return SENSOR_4_PPIN;
+    case 4: return SENSOR_5_PPIN;
+    case 5: return SENSOR_6_PPIN;
+    default: return 255;
+  }
+}
+
 //Reads raw sensor data and generates an average over a defined number of meassurments
 int avgRead(int addr) {
   int values = 0;  //stores values for average calculation
@@ -23,25 +51,25 @@ int avgRead(int addr) {
 }
 
 //Returns humidity as a percent value, based on a scale between the calibrated MIN/MAX of the sensor.
-int getHumidity(const int x) {
+int getHumidity(const int sensorNum) {
   //Power the sensor if applicable
-  // if (ctx.powerPins[x] != -1) {
-  //   digitalWrite(ctx.powerPins[x], HIGH);  //power the sensor
-  //   delay(10);                             //wait a moment for the sensor to power up
-  // }
+  if (getPowerPin(sensorNum) != -1) {
+    digitalWrite(getPowerPin(sensorNum), HIGH);  //power the sensor
+    delay(10);                             //wait a moment for the sensor to power up
+  }
   //Read the sensor
-  int val = (100 - (((float)avgRead(A0) - SENSOR_CALIBRATED_MIN) / ((SENSOR_CALIBRATED_MAX - SENSOR_CALIBRATED_MIN) / 100.0)));  //calculate percentage of humidity
+  int val = (100 - (((float)avgRead(getSensorPin(sensorNum)) - SENSOR_CALIBRATED_MIN) / ((SENSOR_CALIBRATED_MAX - SENSOR_CALIBRATED_MIN) / 100.0)));  //calculate percentage of humidity
   //Power down the sensor if applicable
-//   if (ctx.powerPins[x] != -1) {
-//     digitalWrite(ctx.powerPins[x], LOW);  //power down the sensor
-// }
+  if (getPowerPin(sensorNum) != -1) {
+    digitalWrite(getPowerPin(sensorNum), LOW);  //power down the sensor
+}
 return constrain(val, 0, 99);  //limit value to between 0 and 99%
 }
 
 //Read all sensors and write results to memory
 void readSensorsAndUpdateMemory() {
-  for (int i = 0; i < NUM_SENSORS; i++) {
-    ctx.values[i] = getHumidity(i);
+  for (uint8_t sensorNum = 0; sensorNum < NUM_SENSORS; sensorNum++) {
+    ctx.values[sensorNum] = getHumidity(sensorNum);
   }
 }
 
@@ -51,18 +79,16 @@ void readSensorsAndUpdateMemory() {
 
 void initCtx() {
     ctx = {
-    // .powerPins = {SENSOR_1_PPIN, SENSOR_2_PPIN, SENSOR_3_PPIN, SENSOR_4_PPIN, SENSOR_5_PPIN, SENSOR_6_PPIN},
-    // .readPins = {SENSOR_1_PIN, SENSOR_2_PIN, SENSOR_3_PIN, SENSOR_4_PIN, SENSOR_5_PIN, SENSOR_6_PIN},
     .values = {0, 0, 0, 0, 0, 0 }
     };
 
-  //   for (int i = 0; i < NUM_SENSORS; i++) {
-  //   if (ctx.powerPins[i] != -1) {
-  //     pinMode(ctx.powerPins[i], OUTPUT);
-  //     digitalWrite(ctx.powerPins[i], LOW);  //make sure sensor is off
-  //   }
-  //   pinMode(ctx.readPins[i], INPUT);
-  // }
+    for (uint8_t sensorNum = 0; sensorNum < NUM_SENSORS; sensorNum++) {
+      if (getPowerPin(sensorNum) != -1) {
+        pinMode(getPowerPin(sensorNum), OUTPUT);
+        digitalWrite(getPowerPin(sensorNum), LOW);  //make sure sensor is off
+      }
+      pinMode(getSensorPin(sensorNum), INPUT);
+  }
 }
 
 //Write human friendly names of sensors to memory.

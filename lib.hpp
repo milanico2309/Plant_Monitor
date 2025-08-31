@@ -8,15 +8,11 @@
 namespace Lib {
 
 struct SensorContext {
-    // int powerPins[MAX_SENSORS];
-    // int readPins[MAX_SENSORS];
-    int values[MAX_SENSORS];
+    uint8_t values[MAX_SENSORS];
 };
 
 extern SensorContext ctx;
 extern const __FlashStringHelper* sensorID[NUM_SENSORS];
-//extern long millisOffset;
-//extern bool timeIsSet;
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -14,8 +14,8 @@ static void debugLineDisplay(const __FlashStringHelper* msg);
 
 #ifdef DISP
 Adafruit_SH1106G display = Adafruit_SH1106G(128, 64, &Wire);
-int dispScrollOffset = 0;
-int sensorIDOffset = 0;
+int8_t dispScrollOffset = 0;
+uint8_t sensorIDOffset = 0;
 static void drawTime();
 unsigned long lastDebug = 0;
 
@@ -129,7 +129,7 @@ void messageSerial(T msg) {
 void valuesSerialPrint() {
   #ifdef SERIAL_OUT
   messageSerial('>');
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (uint8_t i = 0; i < NUM_SENSORS; i++) {
     messageSerial(Lib::sensorID[i]);
     messageSerial(F(": "));
     messageSerial(Lib::ctx.values[i]);
@@ -142,7 +142,7 @@ void valuesSerialPrint() {
 
 void valuesSerialPlot() {
   #ifdef SERIAL_PLOT
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (uint8_t i = 0; i < NUM_SENSORS; i++) {
     messageSerial(Lib::ctx.values[i]);
     messageSerial(' ');
     }
@@ -206,7 +206,7 @@ void printDebugBuffer() {
   display.clearDisplay();
   display.setCursor(0, 0);
   display.invertDisplay(true);
-  for (int i = 1; i <= DEBUG_BUFFER_LINES; i++) {
+  for (uint8_t i = 1; i <= DEBUG_BUFFER_LINES; i++) {
     display.println(debug_buffer[(debugBufferLine + i) % DEBUG_BUFFER_LINES]);  //We start at debugLine+1 as its the least recently written line and work our way through the ringbuffer.
   }
   display.display();
@@ -222,7 +222,7 @@ void printMainScreen() {
     display.setTextSize(2);
     display.invertDisplay(false);
 
-    int y = dispScrollOffset;
+    int16_t y = dispScrollOffset;
     while (y < 129) {
       display.setCursor(0, y);
       display.print(Lib::sensorID[sensorIDOffset]);
@@ -270,11 +270,10 @@ static void drawTime() {
 
 void formatMillisTime(char* buf, bool flashDots = false) {
   // Calculate hours, minutes, seconds
-  unsigned long totalMillis = millis() + millisOffset;
-  unsigned long totalSeconds = totalMillis / 1000;
-  int hours = (totalSeconds / 3600) % 24;
-  int minutes = (totalSeconds / 60) % 60;
-  int seconds = totalSeconds % 60;
+  uint32_t totalSeconds = (millis() + millisOffset) / 1000;
+  uint8_t hours = (totalSeconds / 3600) % 24;
+  uint8_t minutes = (totalSeconds / 60) % 60;
+  uint8_t seconds = totalSeconds % 60;
 
   // Format time string with optional flashing colons
   char sep = ':';
