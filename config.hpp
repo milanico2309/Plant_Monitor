@@ -39,31 +39,31 @@
   //Sensor 1
   #define SENSOR_1_ID             F("Monstera") //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   const uint8_t SENSOR_1_PIN =        A0;           //Analog Pin to which the sensor is connected.
-  const uint8_t SENSOR_1_PPIN =       11;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
+  const uint8_t SENSOR_1_PPIN =       2;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
   //Sensor 2
   #define SENSOR_2_ID             F("Schaefl.")  //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   const uint8_t SENSOR_2_PIN =        A1;           //Analog Pin to which the sensor is connected.
-  const uint8_t SENSOR_2_PPIN =       12;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
+  const uint8_t SENSOR_2_PPIN =       3;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
 
   //Sensor 3
   #define SENSOR_3_ID             F("Gl.Feder") //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   const uint8_t SENSOR_3_PIN =        A2;           //Analog Pin to which the sensor is connected.
-  const uint8_t SENSOR_3_PPIN =       13;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
+  const uint8_t SENSOR_3_PPIN =       4;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
 
   //Sensor 4
   #define SENSOR_4_ID             F("Monstera") //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   const uint8_t SENSOR_4_PIN =        A3;           //Analog Pin to which the sensor is connected.
-  const uint8_t SENSOR_4_PPIN =       14;           //Pin that powers the sensor (if applicable). Set to -1 if not used.  
+  const uint8_t SENSOR_4_PPIN =       5;           //Pin that powers the sensor (if applicable). Set to -1 if not used.  
 
   //Sensor 5
   #define SENSOR_5_ID             F("Monstera") //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   const uint8_t SENSOR_5_PIN =        A6;           //Analog Pin to which the sensor is connected.
-  const uint8_t SENSOR_5_PPIN =       15;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
+  const uint8_t SENSOR_5_PPIN =       6;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
 
   //Sensor 6
   #define SENSOR_6_ID             F("Monstera") //A Name by which this sensor is identified (e.g. Name of the corresponding plant)
   const uint8_t SENSOR_6_PIN =        A7;           //Analog Pin to which the sensor is connected.
-  const uint8_t SENSOR_6_PPIN =       16;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
+  const uint8_t SENSOR_6_PPIN =       7;           //Pin that powers the sensor (if applicable). Set to -1 if not used.
 
   //Calibration values for the sensors.
   //These values are used to map the analog reading to a percentage value.
