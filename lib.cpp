@@ -12,8 +12,9 @@ SensorContext ctx;
 ///////////////////////////////  FUNCTIONS  ///////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-// Analog-Pins
-//We use this instead of an array to keep the memory footprint low (keep things in PROGMEM)
+/// @brief Get PIN id for a given sensor index. Values are defined in config.hpp
+/// @param sensorIndex Index of the sensor in config.hpp(0 to NUM_SENSORS-1)
+/// @return Sensor PIN id or 255 if index is out of range
 uint8_t getSensorPin(uint8_t sensorIndex) {
   switch(sensorIndex) {
     case 0: return SENSOR_1_PIN;
@@ -26,8 +27,9 @@ uint8_t getSensorPin(uint8_t sensorIndex) {
   }
 }
 
-// Power-Pins
-//We use this instead of an array to keep the memory footprint low (keep things in PROGMEM)
+/// @brief Get PIN id for a given sensor index. Values are defined in config.hpp
+/// @param sensorIndex Index of the sensor in config.hpp(0 to NUM_SENSORS-1)
+/// @return Sensor PIN id or 255 if index is out of range
 uint8_t getPowerPin(uint8_t sensorIndex) {
   switch(sensorIndex) {
     case 0: return SENSOR_1_PPIN;
@@ -40,7 +42,9 @@ uint8_t getPowerPin(uint8_t sensorIndex) {
   }
 }
 
-//Reads raw sensor data and generates an average over a defined number of meassurments
+/// @brief Reads analog value from a given pin multiple times and returns the average. Parameter AVERAGE_OF from config.hpp defines how many readings are taken.
+/// @param addr PIN to read from
+/// @return The average reading
 int avgRead(int addr) {
   int values = 0;  //stores values for average calculation
   for (int i = 0; i < AVERAGE_OF; i++) {
@@ -50,16 +54,15 @@ int avgRead(int addr) {
   return (float)values / (float)AVERAGE_OF;  //calculate average
 }
 
-//Returns humidity as a percent value, based on a scale between the calibrated MIN/MAX of the sensor.
+/// @brief Reads the humidity from a given sensor. If a power pin is defined for the sensor it will be powered on before reading and powered off afterwards. SENSOR_CALIBRATED_MIN and SENSOR_CALIBRATED_MAX from config.hpp are used to map the analog reading to a percentage value.
+/// @param sensorNum Index of the sensor in config.hpp(0 to NUM_SENSORS-1)
+/// @return Humidity in percent (0 to 99%)
 int getHumidity(const int sensorNum) {
-  //Power the sensor if applicable
   if (getPowerPin(sensorNum) != -1) {
-    digitalWrite(getPowerPin(sensorNum), HIGH);  //power the sensor
-    delay(10);                             //wait a moment for the sensor to power up
+    digitalWrite(getPowerPin(sensorNum), HIGH);
+    delay(10);
   }
-  //Read the sensor
   int val = (100 - (((float)avgRead(getSensorPin(sensorNum)) - SENSOR_CALIBRATED_MIN) / ((SENSOR_CALIBRATED_MAX - SENSOR_CALIBRATED_MIN) / 100.0)));  //calculate percentage of humidity
-  //Power down the sensor if applicable
   if (getPowerPin(sensorNum) != -1) {
     digitalWrite(getPowerPin(sensorNum), LOW);  //power down the sensor
 }
