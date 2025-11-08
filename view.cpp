@@ -19,7 +19,7 @@ uint8_t sensorIDOffset = 0;
 static void drawTime();
 unsigned long lastDebug = 0;
 
-#endif //DISP
+#endif  //DISP
 #ifdef DEBUG_DISP
 #define DEBUG_BUFFER_LINES 8
 #define DEBUG_BUFFER_ROWS 22
@@ -27,7 +27,7 @@ char debug_buffer[DEBUG_BUFFER_LINES][DEBUG_BUFFER_ROWS];
 int debugBufferLine = 0;
 static void debugBufferNextLine();
 static void printDebugBuffer();
-#endif //DEBUG_DISP
+#endif  //DEBUG_DISP
 #ifdef SERIAL_OUT
 static void debugLineSerial(const __FlashStringHelper* msg);
 static void debugSerial(const __FlashStringHelper* msg);
@@ -39,13 +39,15 @@ template<typename T>
 static void messageLineSerial(T msg);
 template<typename T>
 static void messageSerial(T msg);
-#endif //SERIAL_OUT
+#endif  //SERIAL_OUT
 
 void debugLine(const __FlashStringHelper* msg) {
-#if defined(DEBUG_DISP) || defined(DEBUG_SERIAL)
+#if defined(DEBUG_SERIAL) && defined(SERIAL_OUT)
   debugLineSerial(msg);
+#endif  //DEBUG_SERIAL
+#if defined(DEBUG_DISP) && defined(DISP)
   debugLineDisplay(msg);
-#endif //DEBUG_DISP || DEBUG_SERIAL
+#endif  //DEBUG_DISP
 }
 
 void setMillisOffset(long offset) {
@@ -62,93 +64,92 @@ void setMillisOffset(long offset) {
 void initSerial() {
 #ifdef SERIAL_OUT
   Serial.begin(BAUDRATE);  //open serial port
-  messageLineSerial(F("Completed serial setup!"));
+  debugLineSerial(F("Completed serial setup!"));
 #endif  //SERIAL_OUT
 }
 
 void debugLineSerial(const __FlashStringHelper* msg) {
-  #ifdef DEBUG_SERIAL
+#ifdef DEBUG_SERIAL
   Serial.println(msg);
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //DEBUG_SERIAL
+#endif                           //DEBUG_SERIAL
 }
 
 void messageLineSerial(const __FlashStringHelper* msg) {
-  #ifdef SERIAL_OUT
+#ifdef SERIAL_OUT
   Serial.println(msg);
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //SERIAL_OUT
+#endif                           //SERIAL_OUT
 }
 
 void debugSerial(const __FlashStringHelper* msg) {
-  #ifdef DEBUG_SERIAL
+#ifdef DEBUG_SERIAL
   Serial.print(msg);
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //DEBUG_SERIAL
+#endif                           //DEBUG_SERIAL
 }
 
 void messageSerial(const __FlashStringHelper* msg) {
-  #ifdef SERIAL_OUT
+#ifdef SERIAL_OUT
   Serial.print(msg);
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //SERIAL_OUT
+#endif                           //SERIAL_OUT
 }
 
 template<typename T>
 void debugLineSerial(T msg) {
-  #ifdef DEBUG_SERIAL
+#ifdef DEBUG_SERIAL
   Serial.println(msg);
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //DEBUG_SERIAL
+#endif                           //DEBUG_SERIAL
 }
 
 template<typename T>
 void messageLineSerial(T msg) {
-  #ifdef SERIAL_OUT
+#ifdef SERIAL_OUT
   Serial.println(msg);
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //SERIAL_OUT
+#endif                           //SERIAL_OUT
 }
 
 template<typename T>
 void debugSerial(T msg[]) {
-  #ifdef DEBUG_SERIAL
+#ifdef DEBUG_SERIAL
   Serial.print(msg);
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //DEBUG_SERIAL
+#endif                           //DEBUG_SERIAL
 }
 
 template<typename T>
 void messageSerial(T msg) {
-  #ifdef SERIAL_OUT
+#ifdef SERIAL_OUT
   Serial.print(msg);
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //SERIAL_OUT
+#endif                           //SERIAL_OUT
 }
 
 void valuesSerialPrint() {
-  #ifdef SERIAL_OUT
-  messageSerial('>');
+#if defined(SERIAL_LOG) && defined(SERIAL_OUT)
   for (uint8_t i = 0; i < NUM_SENSORS; i++) {
-    messageSerial(Lib::sensorID[i]);
+    messageSerial(Lib::getSensorName(i));
     messageSerial(F(": "));
     messageSerial(Lib::ctx.values[i]);
     messageSerial(' ');
-    }
+  }
   messageLineSerial(F(""));
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //SERIAL_OUT
+#endif //SERIAL_LOG
 }
 
 void valuesSerialPlot() {
-  #ifdef SERIAL_PLOT
+#ifdef SERIAL_PLOT
   for (uint8_t i = 0; i < NUM_SENSORS; i++) {
     messageSerial(Lib::ctx.values[i]);
     messageSerial(' ');
-    }
+  }
   messageLineSerial(F(""));
   delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-  #endif  //SERIAL_PLOT
+#endif                           //SERIAL_PLOT
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -159,10 +160,12 @@ void valuesSerialPlot() {
 void initDisplay() {
 #ifdef DISP
   debugLineSerial(F("Setup Display..."));
-  if (!display.begin(0x3C, false)) {   // reset = false
+  if (!display.begin(0x3C, false)) {  // reset = false
     debugLineSerial(F("Display not found!"));
-    for (;;) ; // stop here
-  }  display.cp437(true);
+    for (;;)
+      ;  // stop here
+  }
+  display.cp437(true);
   display.setTextWrap(false);
   display.display();
   delay(500);
@@ -186,7 +189,7 @@ void initDisplay() {
 }
 
 void debugLineDisplay(const __FlashStringHelper* msg) {
-#ifdef DEBUG_DISP
+#if defined(DEBUG_DISP) && defined(DISP)
   lastDebug = millis();
   debugBufferNextLine();
   strncpy_P(debug_buffer[debugBufferLine], (PGM_P)msg, DEBUG_BUFFER_ROWS - 1);  // Kopie von Flash in SRAM
@@ -196,13 +199,13 @@ void debugLineDisplay(const __FlashStringHelper* msg) {
 }
 
 void debugBufferNextLine() {
-  #ifdef DEBUG_DISP
+#if defined(DEBUG_DISP) && defined(DISP)
   debugBufferLine = (debugBufferLine + 1) & (DEBUG_BUFFER_LINES - 1);  //after max rollover to 0
-  #endif  //DEBUG_DISP
+#endif                                                                 //DEBUG_DISP
 }
 
 void printDebugBuffer() {
-  #ifdef DEBUG_DISP
+#if defined(DEBUG_DISP) && defined(DISP)
   display.clearDisplay();
   display.setCursor(0, 0);
   display.invertDisplay(true);
@@ -211,13 +214,14 @@ void printDebugBuffer() {
   }
   display.display();
   delay(50);
-  #endif  //DEBUG_DISP
+#endif  //DEBUG_DISP
 }
 
 void printMainScreen() {
-  #ifdef DEBUG_DISP
+#if defined(DISP)
+#if defined(DEBUG_DISP)
   if (lastDebug + T_SHOWDEBUG < millis()) {
-  #endif  //DEBUG_DISP
+#endif  //DEBUG_DISP
     display.clearDisplay();
     display.setTextSize(2);
     display.invertDisplay(false);
@@ -225,7 +229,7 @@ void printMainScreen() {
     int16_t y = dispScrollOffset;
     while (y < 129) {
       display.setCursor(0, y);
-      display.print(Lib::sensorID[sensorIDOffset]);
+      display.print(Lib::getSensorName(sensorIDOffset));
       display.setCursor(106, y);
       display.print(Lib::ctx.values[sensorIDOffset]);
       sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS;
@@ -235,40 +239,44 @@ void printMainScreen() {
     if (dispScrollOffset == 0) { sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS; }
 
     drawTime();
-
     display.display();
-  #ifdef DEBUG_DISP
+
+#ifdef DEBUG_DISP
   }
-  #endif  //DEBUG_DISP
+#endif  //DEBUG_DISP
+#endif  //DISP
 }
 
 void printUpdateScreen() {
+#if defined(DISP)
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.invertDisplay(false);
 
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.invertDisplay(false);
+  display.setCursor(19, 21);
+  display.println(F("Updating"));
+  display.setCursor(8, 37);
+  display.println(F("sensors..."));
 
-    display.setCursor(19, 21);
-    display.println(F("Updating"));
-    display.setCursor(8, 37);
-    display.println(F("sensors..."));
+  drawTime();
 
-    drawTime();
-
-    display.display();
+  display.display();
+#endif  //DISP
 }
 
 static void drawTime() {
+#if defined(DISP)
   display.fillRect(0, 0, 128, 11, SH110X_BLACK);
-    display.setTextSize(1);
-    display.setCursor(0, 0);
-    char buf[9];
-    formatMillisTime(buf, true);
-    display.println(buf);
-    display.drawFastHLine(0, 9, 128, SH110X_WHITE);
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  char buf[9];
+  formatMillisTime(buf, true);
+  display.println(buf);
+  display.drawFastHLine(0, 9, 128, SH110X_WHITE);
+#endif  //DISP
 }
 
-void formatMillisTime(char* buf, bool flashDots = false) {
+void formatMillisTime(char* buf, bool flashDots) {
   // Calculate hours, minutes, seconds
   uint32_t totalSeconds = (millis() + millisOffset) / 1000;
   uint8_t hours = (totalSeconds / 3600) % 24;

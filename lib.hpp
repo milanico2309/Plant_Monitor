@@ -12,8 +12,9 @@ struct SensorContext {
 };
 
 extern SensorContext ctx;
-extern const __FlashStringHelper* sensorID[NUM_SENSORS];
 
+// Returns sensor name stored in flash for given index
+const __FlashStringHelper* getSensorName(uint8_t idx);
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////  FUNCTIONS  ///////////////////////////////////
@@ -28,9 +29,6 @@ void readSensorsAndUpdateMemory();
 
 //initialize Sensor Context
 void initCtx();
-
-//initialize Array Containing Names
-void initIDArray();
 
 } // namespace Lib
 
