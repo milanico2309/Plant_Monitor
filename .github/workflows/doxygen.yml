@@ -18,8 +18,8 @@ jobs:
 
       - name: Generate documentation
         run: doxygen Doxyfile
-
+        
       - name: Deploy to GitHub Pages
-        uses: github/pages@v4
+        uses: actions/deploy-pages@v4
         with:
           path: docs/html
