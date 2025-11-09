@@ -1,0 +1,13 @@
+pages:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add doxygen graphviz
+  script:
+    - doxygen Doxyfile
+    - mv docs/html public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main

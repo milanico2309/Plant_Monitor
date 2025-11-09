@@ -1,3 +1,7 @@
+/**
+ * @file view.cpp
+ * @brief Implementation of serial and OLED display rendering for Plant Monitor.
+ */
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include "config.hpp"
@@ -8,15 +12,35 @@
 
 namespace View {
 
+/**
+ * @brief Milliseconds offset added to `millis()` for rendering time on the display.
+ * Useful to align the shown clock without an RTC.
+ */
 long millisOffset = 12120000;
+
+/**
+ * @brief Format `millis()` (+ offset) into HH:MM:SS.
+ * @param buf Buffer of at least 9 chars to receive a null-terminated string.
+ * @param flashDots If true, the separators blink once per second.
+ */
 void formatMillisTime(char* buf, bool flashDots = false);
+
+/**
+ * @brief Append a debug line to the on-device debug buffer and redraw it.
+ * @param msg Flash-stored message to show.
+ */
 static void debugLineDisplay(const __FlashStringHelper* msg);
 
 #ifdef DISP
+/** OLED driver instance for a 128x64 SH1106 display. */
 Adafruit_SH1106G display = Adafruit_SH1106G(128, 64, &Wire);
+/** Vertical pixel offset used for marquee-style scrolling. */
 int8_t dispScrollOffset = 0;
+/** Index of the next sensor name/value to render at the top line. */
 uint8_t sensorIDOffset = 0;
+/** Draw the current time header bar at the top of the screen. */
 static void drawTime();
+/** Timestamp of the last debug message shown (for auto-hide). */
 unsigned long lastDebug = 0;
 
 #endif  //DISP
