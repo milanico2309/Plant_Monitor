@@ -34,6 +34,11 @@
  */
 #define SERIAL_OUT
 /**
+ * @def SERIAL_IN
+ * @brief Enable serial command input (SerialController). If undefined, command parsing is removed at compile-time.
+ */
+#define SERIAL_IN
+/**
  * @def DEBUG_SERIAL
  * @brief Enable debug output over serial.
  */
@@ -47,7 +52,7 @@
  * @def DEBUG_DISP
  * @brief Enable debug output on the display.
  */
-#define DEBUG_DISP
+//#define DEBUG_DISP
 /**
  * @def SERIAL_LOG
  * @brief Enable human-friendly logs over serial (as opposed to plotter mode).
@@ -122,10 +127,6 @@ static_assert(NUM_SENSORS <= MAX_SENSORS, "Error: NUM_SENSORS exceeds MAX_SENSOR
 
 // Advanced Config.
 /**
- * @brief Delay in ms between serial prints to avoid overruns.
- */
-constexpr uint8_t SERIAL_TRANSMIT_DELAY = 1;
-/**
  * @def BAUDRATE
  * @brief Baud rate for the serial connection.
  */
@@ -135,5 +136,32 @@ constexpr uint8_t SERIAL_TRANSMIT_DELAY = 1;
  * @brief Analog reference configuration used for analog inputs.
  */
 #define ANALOG_REF DEFAULT
+
+#define DISP_CONTRAST 1
+
+/**
+ * @brief Interval in seconds for automatic sensor reads when using Timer1.
+ *
+ * Note: On an ATmega328P (16 MHz) with Timer1 prescaler 1024 the maximum
+ * single-shot interval representable with OCR1A (16-bit) is ~4.19 seconds.
+ * Set this to a value <= 4 to avoid needing a software counter inside the
+ * ISR. If you need a longer interval, use a smaller base interval or the
+ * existing millis()-based approach.
+ */
+constexpr uint8_t READ_INTERVAL_SECONDS = 1;
+
+/**
+ * @brief Desired overall sensor-read interval in seconds. The timer will
+ * fire every READ_INTERVAL_SECONDS and the ISR will count up to reach this
+ * target. Set to any positive value; actual interval will be
+ * multiplier * READ_INTERVAL_SECONDS where multiplier = ceil(READ_TARGET_SECONDS / READ_INTERVAL_SECONDS).
+ */
+constexpr uint8_t READ_TARGET_SECONDS = 10;
+
+// Validate that the base interval is representable for Timer1 with prescaler 1024
+static_assert(READ_INTERVAL_SECONDS >= 1 && (unsigned long)(F_CPU / 1024UL) * (unsigned long)READ_INTERVAL_SECONDS - 1UL <= 0xFFFFUL, "READ_INTERVAL_SECONDS too large for Timer1 with prescaler 1024 on this F_CPU; choose a smaller value or use a smaller prescaler.");
+
+// Ensure the computed multiplier will fit in a uint8_t
+static_assert(((READ_TARGET_SECONDS + READ_INTERVAL_SECONDS - 1) / READ_INTERVAL_SECONDS) <= 0xFF, "READ_TARGET_SECONDS/READ_INTERVAL_SECONDS multiplier too large to store in uint8_t.");
 
 #endif

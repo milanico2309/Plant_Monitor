@@ -3,20 +3,19 @@
  * @brief Implementation of serial and OLED display rendering for Plant Monitor.
  */
 #include <Arduino.h>
-#include <HardwareSerial.h>
 #include "config.hpp"
 #include "view.hpp"
 #include "lib.hpp"
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
+#include <string.h>
 
 namespace View {
 
 /**
- * @brief Milliseconds offset added to `millis()` for rendering time on the display.
- * Useful to align the shown clock without an RTC.
+ * @brief Runtime switch to enable/disable display rendering.
  */
-long millisOffset = 12120000;
+static bool displayEnabled = true;
 
 /**
  * @brief Format `millis()` (+ offset) into HH:MM:SS.
@@ -24,12 +23,6 @@ long millisOffset = 12120000;
  * @param flashDots If true, the separators blink once per second.
  */
 void formatMillisTime(char* buf, bool flashDots = false);
-
-/**
- * @brief Append a debug line to the on-device debug buffer and redraw it.
- * @param msg Flash-stored message to show.
- */
-static void debugLineDisplay(const __FlashStringHelper* msg);
 
 #ifdef DISP
 /** OLED driver instance for a 128x64 SH1106 display. */
@@ -52,105 +45,24 @@ int debugBufferLine = 0;
 static void debugBufferNextLine();
 static void printDebugBuffer();
 #endif  //DEBUG_DISP
-#ifdef SERIAL_OUT
-static void debugLineSerial(const __FlashStringHelper* msg);
-static void debugSerial(const __FlashStringHelper* msg);
-template<typename T>
-static void debugLineSerial(T msg);
-template<typename T>
-static void debugSerial(T msg);
-template<typename T>
-static void messageLineSerial(T msg);
-template<typename T>
-static void messageSerial(T msg);
-#endif  //SERIAL_OUT
-
-void debugLine(const __FlashStringHelper* msg) {
-#if defined(DEBUG_SERIAL) && defined(SERIAL_OUT)
-  debugLineSerial(msg);
-#endif  //DEBUG_SERIAL
-#if defined(DEBUG_DISP) && defined(DISP)
-  debugLineDisplay(msg);
-#endif  //DEBUG_DISP
-}
-
-void setMillisOffset(long offset) {
-  millisOffset = offset;
-}
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////   SERIAL   ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-//Initialize Serial Communication
+/**
+ * @brief Initialize the Serial interface (when @ref SERIAL_OUT is enabled).
+ *
+ * Opens @ref Serial at @ref BAUDRATE and prints a confirmation debug line
+ * when @ref DEBUG_SERIAL is defined.
+ */
 void initSerial() {
 #ifdef SERIAL_OUT
-  Serial.begin(BAUDRATE);  //open serial port
+  Serial.begin(BAUDRATE);  // open serial port
   debugLineSerial(F("Completed serial setup!"));
-#endif  //SERIAL_OUT
+#endif  // SERIAL_OUT
 }
 
-void debugLineSerial(const __FlashStringHelper* msg) {
-#ifdef DEBUG_SERIAL
-  Serial.println(msg);
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif                           //DEBUG_SERIAL
-}
-
-void messageLineSerial(const __FlashStringHelper* msg) {
-#ifdef SERIAL_OUT
-  Serial.println(msg);
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif                           //SERIAL_OUT
-}
-
-void debugSerial(const __FlashStringHelper* msg) {
-#ifdef DEBUG_SERIAL
-  Serial.print(msg);
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif                           //DEBUG_SERIAL
-}
-
-void messageSerial(const __FlashStringHelper* msg) {
-#ifdef SERIAL_OUT
-  Serial.print(msg);
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif                           //SERIAL_OUT
-}
-
-template<typename T>
-void debugLineSerial(T msg) {
-#ifdef DEBUG_SERIAL
-  Serial.println(msg);
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif                           //DEBUG_SERIAL
-}
-
-template<typename T>
-void messageLineSerial(T msg) {
-#ifdef SERIAL_OUT
-  Serial.println(msg);
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif                           //SERIAL_OUT
-}
-
-template<typename T>
-void debugSerial(T msg[]) {
-#ifdef DEBUG_SERIAL
-  Serial.print(msg);
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif                           //DEBUG_SERIAL
-}
-
-template<typename T>
-void messageSerial(T msg) {
-#ifdef SERIAL_OUT
-  Serial.print(msg);
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif                           //SERIAL_OUT
-}
 
 void valuesSerialPrint() {
 #if defined(SERIAL_LOG) && defined(SERIAL_OUT)
@@ -161,8 +73,8 @@ void valuesSerialPrint() {
     messageSerial(' ');
   }
   messageLineSerial(F(""));
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif //SERIAL_LOG
+  // non-blocking: serial templates avoid blocking; no delay here
+#endif  //SERIAL_LOG
 }
 
 void valuesSerialPlot() {
@@ -172,8 +84,8 @@ void valuesSerialPlot() {
     messageSerial(' ');
   }
   messageLineSerial(F(""));
-  delay(SERIAL_TRANSMIT_DELAY);  //give some time to send the message
-#endif                           //SERIAL_PLOT
+  // non-blocking: serial templates avoid blocking; no delay here
+#endif  //SERIAL_PLOT
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,6 +103,7 @@ void initDisplay() {
   }
   display.cp437(true);
   display.setTextWrap(false);
+  display.setContrast(255);
   display.display();
   delay(500);
   display.setRotation(0);
@@ -208,16 +121,32 @@ void initDisplay() {
   debugLineSerial(F("Set display to black..."));
   display.display();
   delay(200);
+  display.setContrast(DISP_CONTRAST);
   debugLine(F("Completed Display setup!"));
+  // Ensure runtime flag starts enabled
+  displayEnabled = true;
 #endif  //DISP
 }
 
+
+
 void debugLineDisplay(const __FlashStringHelper* msg) {
 #if defined(DEBUG_DISP) && defined(DISP)
+  if (!displayEnabled) return;  // respect runtime display switch
   lastDebug = millis();
   debugBufferNextLine();
   strncpy_P(debug_buffer[debugBufferLine], (PGM_P)msg, DEBUG_BUFFER_ROWS - 1);  // Kopie von Flash in SRAM
   debug_buffer[debugBufferLine][DEBUG_BUFFER_ROWS - 1] = '\0';                  // Sicherheit: Nullterminierung
+  printDebugBuffer();
+#endif  //DEBUG_DISP
+}
+
+void debugLineDisplay(long value) {
+#if defined(DEBUG_DISP) && defined(DISP)
+  if (!displayEnabled) return;
+  lastDebug = millis();
+  debugBufferNextLine();
+  snprintf(debug_buffer[debugBufferLine], DEBUG_BUFFER_ROWS, "%ld", value);  // long → String
   printDebugBuffer();
 #endif  //DEBUG_DISP
 }
@@ -243,6 +172,7 @@ void printDebugBuffer() {
 
 void printMainScreen() {
 #if defined(DISP)
+  if (!displayEnabled) return;
 #if defined(DEBUG_DISP)
   if (lastDebug + T_SHOWDEBUG < millis()) {
 #endif  //DEBUG_DISP
@@ -273,6 +203,7 @@ void printMainScreen() {
 
 void printUpdateScreen() {
 #if defined(DISP)
+  if (!displayEnabled) return;
   display.clearDisplay();
   display.setTextSize(2);
   display.invertDisplay(false);
@@ -301,8 +232,8 @@ static void drawTime() {
 }
 
 void formatMillisTime(char* buf, bool flashDots) {
-  // Calculate hours, minutes, seconds
-  uint32_t totalSeconds = (millis() + millisOffset) / 1000;
+  // Calculate hours, minutes, seconds based on effective millis provided by Lib
+  uint32_t totalSeconds = (Lib::getEffectiveMillis()) / 1000;
   uint8_t hours = (totalSeconds / 3600) % 24;
   uint8_t minutes = (totalSeconds / 60) % 60;
   uint8_t seconds = totalSeconds % 60;
@@ -322,4 +253,37 @@ void formatMillisTime(char* buf, bool flashDots) {
   buf[7] = '0' + (seconds % 10);
   buf[8] = '\0';
 }
+
+bool isDisplayEnabled() {
+  return displayEnabled;
+}
+
+void setDisplayEnabled(bool enabled) {
+  if (displayEnabled == enabled) return;
+  displayEnabled = enabled;
+#ifdef DISP
+  if (!enabled) {
+    // Ensure the physical display is blanked when disabling output
+    display.clearDisplay();
+    display.display();
+  }
+#endif
+}
+
+void setDisplayContrast(uint8_t value) {
+#ifdef DISP
+  // Clamp to valid range for SH1106
+  if (value > 255) value = 255;
+  display.setContrast(value);
+#endif
+#ifdef SERIAL_OUT
+#ifdef DEBUG_SERIAL
+  // Use templated helper; it will skip if TX buffer is full
+  Serial.print(F("Contrast set to "));
+  Serial.println((int)value);
+  // no delay
+#endif
+#endif
+}
+
 }  // namespace View
