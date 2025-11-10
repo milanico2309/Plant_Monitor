@@ -33,7 +33,7 @@ static const char* trimAsciiWhitespace(const char* s, size_t& len) {
  * @brief Handle the T=<ms> command to set the effective time.
  *
  * Parses a signed long integer from the argument and adjusts the global
- * millis-offset so that the effective time (Lib::getEffectiveMillis())
+ * millis-offset so that the effective time (Lib::getTimeOfDayAsMillis())
  * equals the provided value.
  *
  * @param arg Pointer to the ASCII argument following 'T='.
@@ -47,10 +47,10 @@ static bool handleTimeCommand(const char* arg) {
   if (endp != arg) {
     // directly set the offset so effectiveTime == v
     long newOffset = v - (long)millis();
-    Lib::setMillisOffset(newOffset);
+    Lib::setTimeOfDayMillisOffset(newOffset);
 
     // report effective current time over serial
-    unsigned long effective = Lib::getEffectiveMillis();
+    unsigned long effective = Lib::getTimeOfDayAsMillis();
     View::message(F("CMD ok: T -> "));
     View::message(effective);
     View::messageLine(F(""));

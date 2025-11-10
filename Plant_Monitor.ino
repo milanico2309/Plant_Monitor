@@ -80,27 +80,18 @@ ISR (TIMER1_COMPA_vect) {
 /**
  * @brief Arduino main loop.
  *
- * Continuously renders the main screen and, every ~10 seconds, triggers a
- * sensor read and sends the values over the configured serial outputs.
+ * Continuously renders the main screen and triggers a
+ * sensor read when requiered and sends the values over the configured serial outputs.
  */
 void loop() {
-  // Always poll serial to receive commands asynchronously
 #ifdef SERIAL_IN
   SerialController::pollSerial();
-  // Process any complete commands (can be moved to a slower cadence if desired)
   SerialController::processPendingCommands();
-  // If a READ command was received, perform the sensor read immediately
-  // (SerialController now uses Lib::requestSensorRead())
-  if (Lib::getAndClearSensorReadRequest()) {
+  if (Lib::hasSensorReadRequest()) {
     readSensors();
     View::valuesSerialPrint();
     View::valuesSerialPlot();
   }
 #endif
-
   View::printMainScreen();
-
-  // Previously we used a millis() modulo to trigger periodic reads.
-  // That is now replaced by an external trigger that sets the global
-  // request flag (e.g. from SerialController or a Timer ISR).
 }

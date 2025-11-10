@@ -47,12 +47,12 @@ namespace Lib {
      * @brief Set the millisecond offset used to compute the effective time.
      * @param offset Signed offset in milliseconds; effectiveTime = millis() + offset
      */
-    void setMillisOffset(long offset);
+    void setTimeOfDayMillisOffset(long offset);
 
     /**
      * @brief Return the effective current time in milliseconds (millis() + offset).
      */
-    unsigned long getEffectiveMillis();
+    unsigned long getTimeOfDayAsMillis();
 
     /**
      * @brief Request a sensor read to be performed by the main loop (can be set
@@ -64,7 +64,7 @@ namespace Lib {
      * @brief Atomically consume and clear the pending sensor-read request.
      * @return true if a request was pending and was cleared, false otherwise.
      */
-    bool getAndClearSensorReadRequest();
+    bool hasSensorReadRequest();
 
     ///////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////    SETUP    ///////////////////////////////////

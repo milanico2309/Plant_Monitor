@@ -233,7 +233,7 @@ static void drawTime() {
 
 void formatMillisTime(char* buf, bool flashDots) {
   // Calculate hours, minutes, seconds based on effective millis provided by Lib
-  uint32_t totalSeconds = (Lib::getEffectiveMillis()) / 1000;
+  uint32_t totalSeconds = (Lib::getTimeOfDayAsMillis()) / 1000;
   uint8_t hours = (totalSeconds / 3600) % 24;
   uint8_t minutes = (totalSeconds / 60) % 60;
   uint8_t seconds = totalSeconds % 60;

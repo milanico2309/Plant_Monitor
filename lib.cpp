@@ -5,11 +5,10 @@
 #include "lib.hpp"
 #include "config.hpp"
 #include "Arduino.h"
-#include "view.hpp"
 
 namespace Lib {
   SensorContext ctx;
-  static long millisOffset = 0;
+  static long timeOfDayMillisOffset = 0;
 
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////  FUNCTIONS  ///////////////////////////////////
@@ -100,8 +99,8 @@ namespace Lib {
  * @note Diese Funktion ist nicht als ISR-sicher gedacht; sie wird typischerweise
  *       aus dem Hauptprogramm oder einer seriellen Eingabe heraus aufgerufen.
  */
-  void setMillisOffset(long offset) {
-    millisOffset = offset;
+  void setTimeOfDayMillisOffset(long offset) {
+    timeOfDayMillisOffset = offset;
   }
 
   /**
@@ -112,9 +111,9 @@ namespace Lib {
    *
    * @return unsigned long Effektive Zeit in Millisekunden.
    */
-  unsigned long getEffectiveMillis() {
+  unsigned long getTimeOfDayAsMillis() {
     // ensure same unsigned long semantics as Arduino::millis()
-    return (unsigned long) ((long) millis() + millisOffset);
+    return (unsigned long) ((long) millis() + timeOfDayMillisOffset);
   }
 
   // Global sensor-read request flag. volatile so it can be set from ISRs or other modules.
@@ -145,7 +144,7 @@ namespace Lib {
    * @return true  Wenn eine Messanforderung vorhanden war (und nun gelöscht wurde).
    * @return false Wenn keine Messanforderung vorhanden war.
    */
-  bool getAndClearSensorReadRequest() {
+  bool hasSensorReadRequest() {
     bool wasRequested;
     noInterrupts();
     wasRequested = (sensorReadRequested != 0);
