@@ -62,7 +62,7 @@
 /**
  * @brief Interval for showing debug messages on display (milliseconds).
  */
-constexpr uint16_t T_SHOWDEBUG = 1000;
+constexpr uint16_t T_SHOWDEBUG = 1500;
 /**
  * @brief Number of samples to average per sensor read.
  */
@@ -90,7 +90,7 @@ constexpr uint8_t SENSOR_1_PIN = A0;
 /**
  * @brief Human-readable identifier for sensor 2 (stored in flash).
  */
-#define SENSOR_2_ID F("Schaefl.")
+#define SENSOR_2_ID F("Schäflerer")
 /**
  * @brief Analog pin for sensor 2.
  */
@@ -99,7 +99,7 @@ constexpr uint8_t SENSOR_2_PIN = A1;
 /**
  * @brief Human-readable identifier for sensor 3 (stored in flash).
  */
-#define SENSOR_3_ID F("Gl.Feder")
+#define SENSOR_3_ID F("Glücks Feder")
 /**
  * @brief Analog pin for sensor 3.
  */

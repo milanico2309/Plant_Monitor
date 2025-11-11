@@ -6,9 +6,8 @@
 #include "config.hpp"
 #include "view.hpp"
 #include "lib.hpp"
-#include <Adafruit_GFX.h>
-#include <Adafruit_SH110X.h>
-#include <string.h>
+#include <U8g2lib.h>
+#include <Wire.h>
 
 namespace View {
 
@@ -26,7 +25,7 @@ void formatMillisTime(char* buf, bool flashDots = false);
 
 #ifdef DISP
 /** OLED driver instance for a 128x64 SH1106 display. */
-Adafruit_SH1106G display = Adafruit_SH1106G(128, 64, &Wire);
+U8G2_SH1106_128X64_NONAME_2_HW_I2C display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 /** Vertical pixel offset used for marquee-style scrolling. */
 int8_t dispScrollOffset = 0;
 /** Index of the next sensor name/value to render at the top line. */
@@ -39,7 +38,7 @@ unsigned long lastDebug = 0;
 #endif  //DISP
 #ifdef DEBUG_DISP
 #define DEBUG_BUFFER_LINES 8
-#define DEBUG_BUFFER_ROWS 22
+#define DEBUG_BUFFER_ROWS 27
 char debug_buffer[DEBUG_BUFFER_LINES][DEBUG_BUFFER_ROWS];
 int debugBufferLine = 0;
 static void debugBufferNextLine();
@@ -73,7 +72,6 @@ void valuesSerialPrint() {
     messageSerial(' ');
   }
   messageLineSerial(F(""));
-  // non-blocking: serial templates avoid blocking; no delay here
 #endif  //SERIAL_LOG
 }
 
@@ -84,7 +82,6 @@ void valuesSerialPlot() {
     messageSerial(' ');
   }
   messageLineSerial(F(""));
-  // non-blocking: serial templates avoid blocking; no delay here
 #endif  //SERIAL_PLOT
 }
 
@@ -92,55 +89,81 @@ void valuesSerialPlot() {
 ///////////////////////////////   DISPLAY   ///////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-//Initialize the Display
+/**
+ * @brief Initialize I2C communication with 400kHz clock speed.
+ * 
+ * Sets up the Wire (I2C) interface with a clock frequency of 400kHz
+ * for fast communication with the OLED display.
+ */
+void initI2C() {
+  Wire.setClock(400000);
+}
+
+/**
+ * @brief Initialize the OLED display for Plant Monitor (when @ref DISP is enabled).
+ * 
+ * This function:
+ * 1. Sets up I2C communication with the display
+ * 2. Initializes the display driver
+ * 3. Enables UTF-8 text output
+ * 4. Shows a brief startup message
+ * 5. Sets the display contrast to @ref DISP_CONTRAST
+ * 
+ * The function is guarded by the @ref DISP compile-time flag and will do nothing
+ * if the display support is not enabled.
+ */
 void initDisplay() {
 #ifdef DISP
   debugLineSerial(F("Setup Display..."));
-  if (!display.begin(0x3C, false)) {  // reset = false
-    debugLineSerial(F("Display not found!"));
-    for (;;)
-      ;  // stop here
-  }
-  display.cp437(true);
-  display.setTextWrap(false);
-  display.setContrast(255);
-  display.display();
-  delay(500);
-  display.setRotation(0);
-  display.setTextColor(SH110X_WHITE);
-  display.clearDisplay();
-  display.display();
-  display.setTextColor(SH110X_WHITE);
-  display.setCursor(0, 0);
-  debugLineSerial(F("Test display"));
-  display.invertDisplay(true);
-  debugLineSerial(F("Set display to white..."));
-  display.display();
-  delay(500);
-  display.invertDisplay(false);
-  debugLineSerial(F("Set display to black..."));
-  display.display();
-  delay(200);
+  initI2C();
+  display.begin();
+  display.enableUTF8Print();
+  display.firstPage();
+  do {
+    display.setFont(u8g2_font_6x12_tf);
+    display.setCursor(0, 12);
+    display.print(F("Plant Monitor"));
+  } while (display.nextPage());
+
+  // Apply desired contrast if supported by controller
   display.setContrast(DISP_CONTRAST);
+
   debugLine(F("Completed Display setup!"));
   // Ensure runtime flag starts enabled
   displayEnabled = true;
 #endif  //DISP
 }
 
-
-
-void debugLineDisplay(const __FlashStringHelper* msg) {
+  
+/**
+ * @brief Display a debug message from flash memory on the OLED display.
+ * 
+ * When both DEBUG_DISP and DISP are enabled, this function adds the given message
+ * to a circular debug message buffer and updates the display to show recent messages.
+ * Messages are rendered in a scrolling fashion with the most recent at the bottom.
+ * 
+ * @param msg Flash string pointer to the debug message to display
+ */
+void debugLineDisplay(const __FlashStringHelper *msg) {
 #if defined(DEBUG_DISP) && defined(DISP)
-  if (!displayEnabled) return;  // respect runtime display switch
+  if (!displayEnabled) return; // respect runtime display switch
   lastDebug = millis();
   debugBufferNextLine();
-  strncpy_P(debug_buffer[debugBufferLine], (PGM_P)msg, DEBUG_BUFFER_ROWS - 1);  // Kopie von Flash in SRAM
-  debug_buffer[debugBufferLine][DEBUG_BUFFER_ROWS - 1] = '\0';                  // Sicherheit: Nullterminierung
+  strncpy_P(debug_buffer[debugBufferLine], (PGM_P) msg, DEBUG_BUFFER_ROWS - 1); // Kopie von Flash in SRAM
+  debug_buffer[debugBufferLine][DEBUG_BUFFER_ROWS - 1] = '\0'; // Sicherheit: Nullterminierung
   printDebugBuffer();
 #endif  //DEBUG_DISP
 }
 
+/**
+ * @brief Display a numeric debug value on the OLED display.
+ * 
+ * When both DEBUG_DISP and DISP are enabled, this function converts the given
+ * numeric value to a string, adds it to the circular debug message buffer,
+ * and updates the display to show recent messages.
+ * 
+ * @param value Long integer value to display as a debug message
+ */
 void debugLineDisplay(long value) {
 #if defined(DEBUG_DISP) && defined(DISP)
   if (!displayEnabled) return;
@@ -159,14 +182,17 @@ void debugBufferNextLine() {
 
 void printDebugBuffer() {
 #if defined(DEBUG_DISP) && defined(DISP)
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.invertDisplay(true);
-  for (uint8_t i = 1; i <= DEBUG_BUFFER_LINES; i++) {
-    display.println(debug_buffer[(debugBufferLine + i) % DEBUG_BUFFER_LINES]);  //We start at debugLine+1 as its the least recently written line and work our way through the ringbuffer.
-  }
-  display.display();
-  delay(50);
+  display.firstPage();
+  do {
+    display.setFont(u8g2_font_5x7_mf);
+    for (uint8_t i = 1; i <= DEBUG_BUFFER_LINES; i++) {
+      uint8_t idx = (debugBufferLine + i) % DEBUG_BUFFER_LINES;
+      int16_t y = i * 7; // 7 px line height for 5x7 font
+      display.setCursor(0, y);
+      display.print(debug_buffer[idx]);
+    }
+  } while (display.nextPage());
+  delay(100);
 #endif  //DEBUG_DISP
 }
 
@@ -174,60 +200,60 @@ void printMainScreen() {
 #if defined(DISP)
   if (!displayEnabled) return;
 #if defined(DEBUG_DISP)
-  if (lastDebug + T_SHOWDEBUG < millis()) {
+  if (lastDebug + T_SHOWDEBUG > millis()) return;
 #endif  //DEBUG_DISP
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.invertDisplay(false);
+  display.firstPage();
+  do {
+    display.setFont(u8g2_font_8x13_tf);
 
     int16_t y = dispScrollOffset;
+    uint8_t localSensorIdx = sensorIDOffset;
     while (y < 129) {
       display.setCursor(0, y);
-      display.print(Lib::getSensorName(sensorIDOffset));
-      display.setCursor(106, y);
-      display.print(Lib::ctx.values[sensorIDOffset]);
-      sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS;
+      display.print(Lib::getSensorName(localSensorIdx));
+      display.setCursor(112, y);
+      display.print(Lib::ctx.values[localSensorIdx]);
+      localSensorIdx = (localSensorIdx + 1) % NUM_SENSORS;
       y += 16;
     }
-    dispScrollOffset = (dispScrollOffset - 1) % -16;
-    if (dispScrollOffset == 0) { sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS; }
 
     drawTime();
-    display.display();
+  } while (display.nextPage());
 
-#ifdef DEBUG_DISP
-  }
-#endif  //DEBUG_DISP
+  // Update scrolling state once per frame (after drawing)
+  dispScrollOffset = (dispScrollOffset - 1) % -16;
+  if (dispScrollOffset == 0) { sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS; }
 #endif  //DISP
 }
 
 void printUpdateScreen() {
 #if defined(DISP)
   if (!displayEnabled) return;
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.invertDisplay(false);
+  display.firstPage();
+  do {
+    display.setFont(u8g2_font_8x13_tf);
 
-  display.setCursor(19, 21);
-  display.println(F("Updating"));
-  display.setCursor(8, 37);
-  display.println(F("sensors..."));
+    display.setCursor(19, 21);
+    display.print(F("Updating"));
+    display.setCursor(8, 37);
+    display.print(F("sensors..."));
 
-  drawTime();
-
-  display.display();
+    drawTime();
+  } while (display.nextPage());
 #endif  //DISP
 }
 
 static void drawTime() {
 #if defined(DISP)
-  display.fillRect(0, 0, 128, 11, SH110X_BLACK);
-  display.setTextSize(1);
-  display.setCursor(0, 0);
+  display.setFont(u8g2_font_6x13B_mn);
+  display.setDrawColor(0);
+  display.drawBox(0, 0, 128, 10);
+  display.setDrawColor(1);
+  display.drawHLine(0, 10, 128);
+  display.setCursor(0, 9);
   char buf[9];
   formatMillisTime(buf, true);
-  display.println(buf);
-  display.drawFastHLine(0, 9, 128, SH110X_WHITE);
+  display.print(buf);
 #endif  //DISP
 }
 
@@ -263,27 +289,24 @@ void setDisplayEnabled(bool enabled) {
   displayEnabled = enabled;
 #ifdef DISP
   if (!enabled) {
-    // Ensure the physical display is blanked when disabling output
-    display.clearDisplay();
-    display.display();
+    // Ensure the physical display is blanked when disabling output (paged)
+    display.firstPage();
+    do {
+      // draw nothing, which results in a cleared page
+    } while (display.nextPage());
   }
 #endif
 }
 
 void setDisplayContrast(uint8_t value) {
 #ifdef DISP
-  // Clamp to valid range for SH1106
-  if (value > 255) value = 255;
   display.setContrast(value);
-#endif
 #ifdef SERIAL_OUT
 #ifdef DEBUG_SERIAL
-  // Use templated helper; it will skip if TX buffer is full
   Serial.print(F("Contrast set to "));
   Serial.println((int)value);
-  // no delay
+#endif
 #endif
 #endif
 }
-
 }  // namespace View

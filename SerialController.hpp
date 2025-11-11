@@ -47,14 +47,13 @@ void pollSerial();
  * @brief Parse and execute a complete received command line, if available.
  *
  * This function is non-blocking. If a line was completed previously by
- * @ref poll(), it is dispatched here. Unknown commands produce an error
- * message (when @ref SERIAL_OUT is enabled). Some commands stage changes
- * (e.g. time offset) that are applied after successful dispatch.
+ * @ref pollSerial(), it is dispatched here. Unknown commands produce an error
+ * message.
  *
+ * @return True if a command was processed, false otherwise
  * @ingroup serial_ctrl
  */
-void processPendingCommands();
-
+bool processPendingCommands();
 } // namespace SerialController
 
 #endif // SERIAL_CONTROLLER_H

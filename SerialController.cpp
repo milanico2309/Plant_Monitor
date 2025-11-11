@@ -1,3 +1,4 @@
+#include "WString.h"
 /**
  * @file SerialController.cpp
  * @brief Implementation of the non-blocking serial command controller.
@@ -105,13 +106,15 @@ static bool handlePrintCommand(const char* /*arg*/) {
   return true;
 }
 
-static void printHelpCommands() {
+static bool printHelpCommands() {
+  View::debugLine(F("Sending Command List!"));
   View::messageLineSerial(F("Commands:"));
   View::messageLineSerial(F("  T=<ms>        set time offset in ms"));
   View::messageLineSerial(F("  DISP=ON|OFF   enable/disable display"));
   View::messageLineSerial(F("  CONTRAST=<v>  set OLED contrast (0-255)"));
   View::messageLineSerial(F("  READ[=NOW]    trigger immediate sensor read"));
   View::messageLineSerial(F("  PRINT[=NOW]   print current values"));
+  return true;
 }
 
 /**
@@ -124,10 +127,10 @@ static bool handleContrastCommand(const char* arg) {
   long v = strtol(arg, &endp, 10);
   if (endp != arg && v >= 0 && v <= 255) {
     View::setDisplayContrast((uint8_t)v);
-    View::messageLineSerial(F("CMD ok: CONTRAST"));
+    View::messageLine(F("CMD ok: CONTRAST"));
     return true;
   }
-  View::messageLineSerial(F("CMD err: CONTRAST expects 0-255"));
+  View::messageLine(F("CMD err: CONTRAST expects 0-255"));
   return true;
 }
 
@@ -137,7 +140,8 @@ static bool dispatchCommandLine(const char* line) {
 
   if (len == 0) return true;
 
-  if (strcmp(p, "HELP") == 0) { printHelpCommands(); return true; }
+  if (strcmp(p, "HELP") == 0) {
+    return printHelpCommands(); }
 
   if (len >= 2 && p[0]=='T' && p[1]=='=') {
     return handleTimeCommand(p + 2);
@@ -181,7 +185,7 @@ void pollSerial() {
       isLineReady = true;
       break;                  // process next time to keep this non-blocking
     }
-    if (receiveLength + 1 < sizeof(receiveBuffer)) {
+    if ((size_t)receiveLength + 1 < sizeof(receiveBuffer)) {
       receiveBuffer[receiveLength++] = c;
     } else {
       // overflow: reset to avoid partial/ambiguous commands
@@ -196,18 +200,17 @@ void pollSerial() {
  *
  * Produces user-visible output for both success and error cases.
  */
-void processPendingCommands() {
+bool processPendingCommands() {
   if (!isLineReady) return;
 
   bool handled = dispatchCommandLine(receiveBuffer);
   if (!handled) {
-    View::messageLineSerial(F("CMD err: unknown"));
+    View::messageLine(F("CMD err: unknown"));
   }
-
   // Reset input state
   receiveLength = 0;
   isLineReady = false;
-
+  return handled;
 }
 
 } // namespace SerialController
