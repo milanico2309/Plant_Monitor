@@ -52,7 +52,7 @@
  * @def DEBUG_DISP
  * @brief Enable debug output on the display.
  */
-//#define DEBUG_DISP
+#define DEBUG_DISP
 /**
  * @def SERIAL_LOG
  * @brief Enable human-friendly logs over serial (as opposed to plotter mode).
@@ -62,7 +62,7 @@
 /**
  * @brief Interval for showing debug messages on display (milliseconds).
  */
-constexpr uint16_t T_SHOWDEBUG = 1500;
+constexpr uint16_t T_SHOWDEBUG = 2000;
 /**
  * @brief Number of samples to average per sensor read.
  */
@@ -74,6 +74,7 @@ constexpr uint8_t AVERAGE_OF = 3;
  * @brief Number of sensors connected.
  */
 #define NUM_SENSORS 3
+static_assert(NUM_SENSORS > 0, "NUM_SENSORS must be greater than 0");
 /*---------------------------------------------------------------*/
 
 /// Configuration for each sensor
@@ -90,7 +91,7 @@ constexpr uint8_t SENSOR_1_PIN = A0;
 /**
  * @brief Human-readable identifier for sensor 2 (stored in flash).
  */
-#define SENSOR_2_ID F("Schäflerer")
+#define SENSOR_2_ID F("Schaeflerer")
 /**
  * @brief Analog pin for sensor 2.
  */
@@ -99,7 +100,7 @@ constexpr uint8_t SENSOR_2_PIN = A1;
 /**
  * @brief Human-readable identifier for sensor 3 (stored in flash).
  */
-#define SENSOR_3_ID F("Glücks Feder")
+#define SENSOR_3_ID F("Gl. Feder")
 /**
  * @brief Analog pin for sensor 3.
  */
@@ -137,7 +138,7 @@ static_assert(NUM_SENSORS <= MAX_SENSORS, "Error: NUM_SENSORS exceeds MAX_SENSOR
  */
 #define ANALOG_REF DEFAULT
 
-#define DISP_CONTRAST 1
+#define DISP_CONTRAST 255
 
 /**
  * @brief Interval in seconds for automatic sensor reads when using Timer1.

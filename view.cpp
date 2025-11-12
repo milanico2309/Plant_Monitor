@@ -11,6 +11,8 @@
 
 namespace View {
 
+   static_assert(NUM_SENSORS > 0, "NUM_SENSORS must be greater than 0");
+
 /**
  * @brief Runtime switch to enable/disable display rendering.
  */
@@ -37,8 +39,8 @@ unsigned long lastDebug = 0;
 
 #endif  //DISP
 #ifdef DEBUG_DISP
-#define DEBUG_BUFFER_LINES 8
-#define DEBUG_BUFFER_ROWS 27
+#define DEBUG_BUFFER_LINES 6
+#define DEBUG_BUFFER_ROWS 21
 char debug_buffer[DEBUG_BUFFER_LINES][DEBUG_BUFFER_ROWS];
 int debugBufferLine = 0;
 static void debugBufferNextLine();
@@ -96,7 +98,9 @@ void valuesSerialPlot() {
  * for fast communication with the OLED display.
  */
 void initI2C() {
+  Wire.begin();
   Wire.setClock(400000);
+  //Wire.setWireTimeout(1000, true);
 }
 
 /**
@@ -117,7 +121,7 @@ void initDisplay() {
   debugLineSerial(F("Setup Display..."));
   initI2C();
   display.begin();
-  display.enableUTF8Print();
+  //display.enableUTF8Print();
   display.firstPage();
   do {
     display.setFont(u8g2_font_6x12_tf);
@@ -176,7 +180,7 @@ void debugLineDisplay(long value) {
 
 void debugBufferNextLine() {
 #if defined(DEBUG_DISP) && defined(DISP)
-  debugBufferLine = (debugBufferLine + 1) & (DEBUG_BUFFER_LINES - 1);  //after max rollover to 0
+  debugBufferLine = (debugBufferLine + 1) % DEBUG_BUFFER_LINES;
 #endif                                                                 //DEBUG_DISP
 }
 
@@ -184,15 +188,17 @@ void printDebugBuffer() {
 #if defined(DEBUG_DISP) && defined(DISP)
   display.firstPage();
   do {
-    display.setFont(u8g2_font_5x7_mf);
+    display.setDrawColor(1);
+    display.drawBox(0, 0, 128, 64);
+    display.setDrawColor(0);
+    display.setFont(u8g2_font_profont11_mr);
     for (uint8_t i = 1; i <= DEBUG_BUFFER_LINES; i++) {
       uint8_t idx = (debugBufferLine + i) % DEBUG_BUFFER_LINES;
-      int16_t y = i * 7; // 7 px line height for 5x7 font
+      int16_t y = i * 10; // 10 px line height for 6*11 font
       display.setCursor(0, y);
       display.print(debug_buffer[idx]);
     }
   } while (display.nextPage());
-  delay(100);
 #endif  //DEBUG_DISP
 }
 
@@ -204,24 +210,26 @@ void printMainScreen() {
 #endif  //DEBUG_DISP
   display.firstPage();
   do {
-    display.setFont(u8g2_font_8x13_tf);
-
+    display.setFont(u8g2_font_profont17_mr);
+    display.setDrawColor(1);
     int16_t y = dispScrollOffset;
     uint8_t localSensorIdx = sensorIDOffset;
     while (y < 129) {
       display.setCursor(0, y);
       display.print(Lib::getSensorName(localSensorIdx));
-      display.setCursor(112, y);
+      display.setCursor(111, y);
       display.print(Lib::ctx.values[localSensorIdx]);
       localSensorIdx = (localSensorIdx + 1) % NUM_SENSORS;
-      y += 16;
+      y += 17;
     }
-
     drawTime();
   } while (display.nextPage());
 
   // Update scrolling state once per frame (after drawing)
-  dispScrollOffset = (dispScrollOffset - 1) % -16;
+  dispScrollOffset--;
+  if (dispScrollOffset < -16) {
+    dispScrollOffset = 0;
+  }
   if (dispScrollOffset == 0) { sensorIDOffset = (sensorIDOffset + 1) % NUM_SENSORS; }
 #endif  //DISP
 }
@@ -231,11 +239,11 @@ void printUpdateScreen() {
   if (!displayEnabled) return;
   display.firstPage();
   do {
-    display.setFont(u8g2_font_8x13_tf);
-
-    display.setCursor(19, 21);
+    display.setFont(u8g2_font_profont17_mr);
+    display.setDrawColor(1);
+    display.setCursor(19, 26);
     display.print(F("Updating"));
-    display.setCursor(8, 37);
+    display.setCursor(8, 42);
     display.print(F("sensors..."));
 
     drawTime();
@@ -245,12 +253,12 @@ void printUpdateScreen() {
 
 static void drawTime() {
 #if defined(DISP)
-  display.setFont(u8g2_font_6x13B_mn);
+  display.setFont(u8g2_font_profont11_mr);
   display.setDrawColor(0);
-  display.drawBox(0, 0, 128, 10);
+  display.drawBox(0, 0, 128, 12);
   display.setDrawColor(1);
   display.drawHLine(0, 10, 128);
-  display.setCursor(0, 9);
+  display.setCursor(0, 7);
   char buf[9];
   formatMillisTime(buf, true);
   display.print(buf);

@@ -106,7 +106,7 @@ static bool handlePrintCommand(const char* /*arg*/) {
   return true;
 }
 
-static bool printHelpCommands() {
+static void printHelpCommands() {
   View::debugLine(F("Sending Command List!"));
   View::messageLineSerial(F("Commands:"));
   View::messageLineSerial(F("  T=<ms>        set time offset in ms"));
@@ -114,7 +114,6 @@ static bool printHelpCommands() {
   View::messageLineSerial(F("  CONTRAST=<v>  set OLED contrast (0-255)"));
   View::messageLineSerial(F("  READ[=NOW]    trigger immediate sensor read"));
   View::messageLineSerial(F("  PRINT[=NOW]   print current values"));
-  return true;
 }
 
 /**
@@ -140,8 +139,7 @@ static bool dispatchCommandLine(const char* line) {
 
   if (len == 0) return true;
 
-  if (strcmp(p, "HELP") == 0) {
-    return printHelpCommands(); }
+  if (strcmp(p, "HELP") == 0) { printHelpCommands(); return true; }
 
   if (len >= 2 && p[0]=='T' && p[1]=='=') {
     return handleTimeCommand(p + 2);
@@ -159,13 +157,6 @@ static bool dispatchCommandLine(const char* line) {
     return handlePrintCommand(nullptr);
   }
   return false;
-}
-
-/**
- * Public API implementations (renamed to descriptive names)
- */
-void initialize() {
-  // nothing to do currently; Serial is initialized in View::initSerial()
 }
 
 /**
@@ -200,7 +191,7 @@ void pollSerial() {
  *
  * Produces user-visible output for both success and error cases.
  */
-bool processPendingCommands() {
+void processPendingCommands() {
   if (!isLineReady) return;
 
   bool handled = dispatchCommandLine(receiveBuffer);
@@ -210,7 +201,7 @@ bool processPendingCommands() {
   // Reset input state
   receiveLength = 0;
   isLineReady = false;
-  return handled;
+
 }
 
 } // namespace SerialController

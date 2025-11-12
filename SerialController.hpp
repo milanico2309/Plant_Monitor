@@ -50,10 +50,10 @@ void pollSerial();
  * @ref pollSerial(), it is dispatched here. Unknown commands produce an error
  * message.
  *
- * @return True if a command was processed, false otherwise
  * @ingroup serial_ctrl
  */
-bool processPendingCommands();
+void processPendingCommands();
+
 } // namespace SerialController
 
 #endif // SERIAL_CONTROLLER_H
