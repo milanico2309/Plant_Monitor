@@ -37,6 +37,7 @@ void readSensors() {
  */
 void setup() {
 
+wdt_enable(WDTO_8S);
 
 View::initSerial();
 
@@ -99,6 +100,7 @@ ISR (TIMER1_COMPA_vect) {
  */
 void loop() {
 
+  wdt_reset();
 #ifdef SERIAL_OUT
   SerialController::pollSerial();
   SerialController::processPendingCommands();
