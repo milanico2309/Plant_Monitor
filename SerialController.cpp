@@ -1,3 +1,4 @@
+#include "WString.h"
 /**
  * @file SerialController.cpp
  * @brief Implementation of the non-blocking serial command controller.
@@ -106,6 +107,7 @@ static bool handlePrintCommand(const char* /*arg*/) {
 }
 
 static void printHelpCommands() {
+  View::debugLine(F("Sending Command List!"));
   View::messageLineSerial(F("Commands:"));
   View::messageLineSerial(F("  T=<ms>        set time offset in ms"));
   View::messageLineSerial(F("  DISP=ON|OFF   enable/disable display"));
@@ -124,10 +126,10 @@ static bool handleContrastCommand(const char* arg) {
   long v = strtol(arg, &endp, 10);
   if (endp != arg && v >= 0 && v <= 255) {
     View::setDisplayContrast((uint8_t)v);
-    View::messageLineSerial(F("CMD ok: CONTRAST"));
+    View::messageLine(F("CMD ok: CONTRAST"));
     return true;
   }
-  View::messageLineSerial(F("CMD err: CONTRAST expects 0-255"));
+  View::messageLine(F("CMD err: CONTRAST expects 0-255"));
   return true;
 }
 
@@ -158,13 +160,6 @@ static bool dispatchCommandLine(const char* line) {
 }
 
 /**
- * Public API implementations (renamed to descriptive names)
- */
-void initialize() {
-  // nothing to do currently; Serial is initialized in View::initSerial()
-}
-
-/**
  * @brief Poll the UART and accumulate characters until a newline is received.
  *
  * This function is non-blocking and intended to be called frequently from
@@ -181,7 +176,7 @@ void pollSerial() {
       isLineReady = true;
       break;                  // process next time to keep this non-blocking
     }
-    if (receiveLength + 1 < sizeof(receiveBuffer)) {
+    if ((size_t)receiveLength + 1 < sizeof(receiveBuffer)) {
       receiveBuffer[receiveLength++] = c;
     } else {
       // overflow: reset to avoid partial/ambiguous commands
@@ -201,9 +196,8 @@ void processPendingCommands() {
 
   bool handled = dispatchCommandLine(receiveBuffer);
   if (!handled) {
-    View::messageLineSerial(F("CMD err: unknown"));
+    View::messageLine(F("CMD err: unknown"));
   }
-
   // Reset input state
   receiveLength = 0;
   isLineReady = false;

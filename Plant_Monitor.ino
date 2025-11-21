@@ -9,9 +9,12 @@
 
 #include "lib.hpp"
 #include "view.hpp"
+#include <Wire.h>
 #include <Arduino.h>
 #include "SerialController.hpp"
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
+
 
 /**
  * @brief Read all sensors once and update the in-memory context.
@@ -33,14 +36,26 @@ void readSensors() {
  * prepares the sensor context and input pins.
  */
 void setup() {
-  //initialize output
-  View::initSerial();
-#ifdef SERIAL_IN
-  SerialController::initialize();
-#endif
-  View::initDisplay();
-  //Initialize memory
+
+wdt_enable(WDTO_8S);
+
+View::initSerial();
+
+  uint8_t flags = MCUSR;
+  Serial.print("MCUSR: 0x");
+  Serial.println(flags, HEX);
+
+  if (flags & (1 << WDRF)) Serial.println("Reset durch Watchdog (WDRF)");
+  if (flags & (1 << BORF)) Serial.println("Brown-out Reset (BORF)");
+  if (flags & (1 << EXTRF)) Serial.println("Externer Reset (EXTRF)");
+  if (flags & (1 << PORF)) Serial.println("Power-on Reset (PORF)");
+
+  MCUSR = 0;
+
+View::initDisplay();
+//Initialize memory
   Lib::initCtx();
+  Lib::readSensorsAndUpdateMemory();
   View::debugLine(F("starting..."));
 
   // Configure Timer1 for READ_INTERVAL_SECONDS interrupts (ATmega328P @16MHz)
@@ -84,14 +99,16 @@ ISR (TIMER1_COMPA_vect) {
  * sensor read when requiered and sends the values over the configured serial outputs.
  */
 void loop() {
-#ifdef SERIAL_IN
+
+  wdt_reset();
+#ifdef SERIAL_OUT
   SerialController::pollSerial();
   SerialController::processPendingCommands();
+#endif
   if (Lib::hasSensorReadRequest()) {
     readSensors();
     View::valuesSerialPrint();
     View::valuesSerialPlot();
   }
-#endif
   View::printMainScreen();
 }
