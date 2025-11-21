@@ -9,6 +9,7 @@
 
 #include "lib.hpp"
 #include "view.hpp"
+#include <Wire.h>
 #include <Arduino.h>
 #include "SerialController.hpp"
 #include <avr/interrupt.h>
@@ -36,7 +37,8 @@ void readSensors() {
  */
 void setup() {
 
-  View::initSerial();
+
+View::initSerial();
 
   uint8_t flags = MCUSR;
   Serial.print("MCUSR: 0x");
@@ -49,8 +51,8 @@ void setup() {
 
   MCUSR = 0;
 
-  View::initDisplay();
-  //Initialize memory
+View::initDisplay();
+//Initialize memory
   Lib::initCtx();
   Lib::readSensorsAndUpdateMemory();
   View::debugLine(F("starting..."));
@@ -96,7 +98,8 @@ ISR (TIMER1_COMPA_vect) {
  * sensor read when requiered and sends the values over the configured serial outputs.
  */
 void loop() {
-#ifdef SERIAL_IN
+
+#ifdef SERIAL_OUT
   SerialController::pollSerial();
   SerialController::processPendingCommands();
 #endif

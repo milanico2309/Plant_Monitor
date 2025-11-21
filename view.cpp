@@ -3,13 +3,16 @@
  * @brief Implementation of serial and OLED display rendering for Plant Monitor.
  */
 #include <Arduino.h>
-#include "config.hpp"
-#include "view.hpp"
-#include "lib.hpp"
 #include <U8g2lib.h>
 #include <Wire.h>
 
+#include "config.hpp"
+#include "view.hpp"
+#include "lib.hpp"
+#include "splashScreen.h"
+
 namespace View {
+
 
    static_assert(NUM_SENSORS > 0, "NUM_SENSORS must be greater than 0");
 
@@ -33,7 +36,7 @@ int8_t dispScrollOffset = 0;
 /** Index of the next sensor name/value to render at the top line. */
 uint8_t sensorIDOffset = 0;
 /** Draw the current time header bar at the top of the screen. */
-static void drawTime();
+static void drawHeader();
 /** Timestamp of the last debug message shown (for auto-hide). */
 unsigned long lastDebug = 0;
 
@@ -92,18 +95,6 @@ void valuesSerialPlot() {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * @brief Initialize I2C communication with 400kHz clock speed.
- * 
- * Sets up the Wire (I2C) interface with a clock frequency of 400kHz
- * for fast communication with the OLED display.
- */
-void initI2C() {
-  Wire.begin();
-  Wire.setClock(400000);
-  //Wire.setWireTimeout(1000, true);
-}
-
-/**
  * @brief Initialize the OLED display for Plant Monitor (when @ref DISP is enabled).
  * 
  * This function:
@@ -119,22 +110,22 @@ void initI2C() {
 void initDisplay() {
 #ifdef DISP
   debugLineSerial(F("Setup Display..."));
-  initI2C();
-  display.begin();
-  //display.enableUTF8Print();
-  display.firstPage();
-  do {
-    display.setFont(u8g2_font_6x12_tf);
-    display.setCursor(0, 12);
-    display.print(F("Plant Monitor"));
-  } while (display.nextPage());
-
-  // Apply desired contrast if supported by controller
-  display.setContrast(DISP_CONTRAST);
-
-  debugLine(F("Completed Display setup!"));
-  // Ensure runtime flag starts enabled
+  Wire.setClock(400000L);
+  #ifdef WIRE_HAS_TIMEOUT
+    Wire.setWireTimeout(1000, true);
+    debugLine(F("I2C/IIC timeout active"));
+  #endif //WIRE_HAS_TIMEOUT
   displayEnabled = true;
+  display.begin();
+  display.setContrast(DISP_CONTRAST);
+  display.firstPage();
+  display.setDrawColor(1);
+  display.setBitmapMode(0);
+  do {
+    display.drawXBMP(0, 0, SPLASH_SCREEN_WIDTH, SPLASH_SCREEN_HEIGHT, splashScreen_bits);
+  } while (display.nextPage());
+  delay(1000);
+  debugLine(F("Completed Display setup!"));
 #endif  //DISP
 }
 
@@ -222,7 +213,7 @@ void printMainScreen() {
       localSensorIdx = (localSensorIdx + 1) % NUM_SENSORS;
       y += 17;
     }
-    drawTime();
+    drawHeader();
   } while (display.nextPage());
 
   // Update scrolling state once per frame (after drawing)
@@ -239,29 +230,35 @@ void printUpdateScreen() {
   if (!displayEnabled) return;
   display.firstPage();
   do {
-    display.setFont(u8g2_font_profont17_mr);
+    display.setFont(u8g2_font_profont22_mr);
     display.setDrawColor(1);
-    display.setCursor(19, 26);
+    display.setCursor(19, 30);
     display.print(F("Updating"));
-    display.setCursor(8, 42);
+    display.setCursor(8, 52);
     display.print(F("sensors..."));
-
-    drawTime();
+    drawHeader();
   } while (display.nextPage());
 #endif  //DISP
 }
 
-static void drawTime() {
+static void drawHeader() {
 #if defined(DISP)
   display.setFont(u8g2_font_profont11_mr);
   display.setDrawColor(0);
   display.drawBox(0, 0, 128, 12);
   display.setDrawColor(1);
   display.drawHLine(0, 10, 128);
-  display.setCursor(0, 7);
+  display.setCursor(0, 8);
   char buf[9];
   formatMillisTime(buf, true);
   display.print(buf);
+  #if defined (DEBUG_DISP) || defined(DEBUG_SERIAL)
+    display.setFont(u8g2_font_profont10_tr);
+    display.setCursor(101,7);
+    display.drawRBox(98,0,30,9,3);
+    display.setDrawColor(0);
+    display.print(F("Debug"));
+  #endif
 #endif  //DISP
 }
 

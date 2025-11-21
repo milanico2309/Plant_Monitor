@@ -59,6 +59,9 @@
  */
 #define SERIAL_LOG
 
+#define WIRE_HAS_TIMEOUT
+
+
 /**
  * @brief Interval for showing debug messages on display (milliseconds).
  */
@@ -138,7 +141,7 @@ static_assert(NUM_SENSORS <= MAX_SENSORS, "Error: NUM_SENSORS exceeds MAX_SENSOR
  */
 #define ANALOG_REF DEFAULT
 
-#define DISP_CONTRAST 255
+#define DISP_CONTRAST 0
 
 /**
  * @brief Interval in seconds for automatic sensor reads when using Timer1.
