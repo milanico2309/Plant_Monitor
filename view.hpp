@@ -3,8 +3,6 @@
  * @brief Public UI/IO interface for serial and display output.
  */
 #pragma once
-#ifndef VIEW_H
-#define VIEW_H
 
 #include "Arduino.h"
 
@@ -29,28 +27,28 @@ void debugLineDisplay(const __FlashStringHelper* msg);
 void debugLineDisplay(long msg);
 
 template<typename T>
-void debugLineSerial(T msg) {
-#ifdef DEBUG_SERIAL
+inline void debugLineSerial(T msg) {
+#ifdef SERIAL_DEBUG
   Serial.println(msg);
 #endif
 }
 
 template<typename T>
-void debugSerial(T msg) {
-#ifdef DEBUG_SERIAL
+inline void debugSerial(T msg) {
+#ifdef SERIAL_DEBUG
   Serial.print(msg);
 #endif
 }
 
 template<typename T>
-void messageLineSerial(T msg) {
+inline void messageLineSerial(T msg) {
 #ifdef SERIAL_OUT
   Serial.println(msg);
 #endif
 }
 
 template<typename T>
-void messageSerial(T msg) {
+inline void messageSerial(T msg) {
 #ifdef SERIAL_OUT
   Serial.print(msg);
 #endif
@@ -135,4 +133,3 @@ bool isDisplayEnabled();
    */
 void setDisplayContrast(uint8_t value);
 }  // namespace View
-#endif  //VIEW_H

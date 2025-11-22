@@ -39,10 +39,10 @@
  */
 #define SERIAL_IN
 /**
- * @def DEBUG_SERIAL
+ * @def SERIAL_DEBUG
  * @brief Enable debug output over serial.
  */
-#define DEBUG_SERIAL
+#define SERIAL_DEBUG
 /**
  * @def SERIAL_PLOT
  * @brief Enable Arduino Serial Plotter-friendly output.
@@ -71,14 +71,13 @@ constexpr uint16_t T_SHOWDEBUG = 2000;
  */
 constexpr uint8_t AVERAGE_OF = 3;
 
-/*---------------------------------------------------------------*/
 /**
  * @def NUM_SENSORS
  * @brief Number of sensors connected.
  */
 #define NUM_SENSORS 3
 static_assert(NUM_SENSORS > 0, "NUM_SENSORS must be greater than 0");
-/*---------------------------------------------------------------*/
+
 
 /// Configuration for each sensor
 

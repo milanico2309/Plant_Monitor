@@ -306,11 +306,9 @@ void setDisplayEnabled(bool enabled) {
 void setDisplayContrast(uint8_t value) {
 #ifdef DISP
   display.setContrast(value);
-#ifdef SERIAL_OUT
 #ifdef DEBUG_SERIAL
   Serial.print(F("Contrast set to "));
   Serial.println((int)value);
-#endif
 #endif
 #endif
 }
