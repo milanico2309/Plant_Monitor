@@ -77,7 +77,7 @@ inline void initIIC() {
  * Opens @ref Serial at @ref BAUDRATE and prints a confirmation debug line
  * when @ref DEBUG_SERIAL is defined.
  */
-inline void initSerial() {
+void initSerial() {
 
 #if defined(SERIAL_OUT)
 
