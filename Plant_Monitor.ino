@@ -45,10 +45,10 @@ void setup() {
   Serial.print("MCUSR: 0x");
   Serial.println(flags, HEX);
 
-  if (flags & (1 << WDRF)) Serial.println("Reset durch Watchdog (WDRF)");
-  if (flags & (1 << BORF)) Serial.println("Brown-out Reset (BORF)");
-  if (flags & (1 << EXTRF)) Serial.println("Externer Reset (EXTRF)");
-  if (flags & (1 << PORF)) Serial.println("Power-on Reset (PORF)");
+  if (flags & (1 << WDRF)) Serial.println(F("Reset durch Watchdog (WDRF)"));
+  if (flags & (1 << BORF)) Serial.println(F("Brown-out Reset (BORF)"));
+  if (flags & (1 << EXTRF)) Serial.println(F("Externer Reset (EXTRF)"));
+  if (flags & (1 << PORF)) Serial.println(F("Power-on Reset (PORF)"));
 
   MCUSR = 0;
 
