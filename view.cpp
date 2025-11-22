@@ -14,7 +14,7 @@
 namespace View {
 
 
-   static_assert(NUM_SENSORS > 0, "NUM_SENSORS must be greater than 0");
+static_assert(NUM_SENSORS > 0, "NUM_SENSORS must be greater than 0");
 
 /**
  * @brief Runtime switch to enable/disable display rendering.
@@ -28,9 +28,10 @@ static bool displayEnabled = true;
  */
 void formatMillisTime(char* buf, bool flashDots = false);
 
-#ifdef DISP
+#if defined(DISP)
+
 /** OLED driver instance for a 128x64 SH1106 display. */
-U8G2_SH1106_128X64_NONAME_2_HW_I2C display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
+U8G2_SH1106_128X64_NONAME_2_HW_I2C display(U8G2_R0, /* reset=*/U8X8_PIN_NONE);
 /** Vertical pixel offset used for marquee-style scrolling. */
 int8_t dispScrollOffset = 0;
 /** Index of the next sensor name/value to render at the top line. */
@@ -41,14 +42,30 @@ static void drawHeader();
 unsigned long lastDebug = 0;
 
 #endif  //DISP
-#ifdef DEBUG_DISP
+
+#if defined(DEBUG_DISP)
+
 #define DEBUG_BUFFER_LINES 6
 #define DEBUG_BUFFER_ROWS 21
+
 char debug_buffer[DEBUG_BUFFER_LINES][DEBUG_BUFFER_ROWS];
 int debugBufferLine = 0;
 static void debugBufferNextLine();
 static void printDebugBuffer();
+
 #endif  //DEBUG_DISP
+
+inline void initIIC() {
+
+  Wire.setClock(400000L);
+
+#if defined(WIRE_HAS_TIMEOUT)
+
+  Wire.setWireTimeout(1000, true);
+  debugLine(F("I2C/IIC timeout active"));
+
+#endif  //WIRE_HAS_TIMEOUT
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////   SERIAL   ////////////////////////////////////
@@ -60,16 +77,21 @@ static void printDebugBuffer();
  * Opens @ref Serial at @ref BAUDRATE and prints a confirmation debug line
  * when @ref DEBUG_SERIAL is defined.
  */
-void initSerial() {
-#ifdef SERIAL_OUT
+inline void initSerial() {
+
+#if defined(SERIAL_OUT)
+
   Serial.begin(BAUDRATE);  // open serial port
   debugLineSerial(F("Completed serial setup!"));
+
 #endif  // SERIAL_OUT
 }
 
 
 void valuesSerialPrint() {
+
 #if defined(SERIAL_LOG) && defined(SERIAL_OUT)
+
   for (uint8_t i = 0; i < NUM_SENSORS; i++) {
     messageSerial(Lib::getSensorName(i));
     messageSerial(F(": "));
@@ -77,16 +99,20 @@ void valuesSerialPrint() {
     messageSerial(' ');
   }
   messageLineSerial(F(""));
+
 #endif  //SERIAL_LOG
 }
 
 void valuesSerialPlot() {
-#ifdef SERIAL_PLOT
+
+#if defined(SERIAL_PLOT)
+
   for (uint8_t i = 0; i < NUM_SENSORS; i++) {
     messageSerial(Lib::ctx.values[i]);
     messageSerial(' ');
   }
   messageLineSerial(F(""));
+
 #endif  //SERIAL_PLOT
 }
 
@@ -108,13 +134,11 @@ void valuesSerialPlot() {
  * if the display support is not enabled.
  */
 void initDisplay() {
-#ifdef DISP
+
+#if defined(DISP)
+
   debugLineSerial(F("Setup Display..."));
-  Wire.setClock(400000L);
-  #ifdef WIRE_HAS_TIMEOUT
-    Wire.setWireTimeout(1000, true);
-    debugLine(F("I2C/IIC timeout active"));
-  #endif //WIRE_HAS_TIMEOUT
+  initIIC();
   displayEnabled = true;
   display.begin();
   display.setContrast(DISP_CONTRAST);
@@ -126,10 +150,11 @@ void initDisplay() {
   } while (display.nextPage());
   delay(1000);
   debugLine(F("Completed Display setup!"));
+
 #endif  //DISP
 }
 
-  
+
 /**
  * @brief Display a debug message from flash memory on the OLED display.
  * 
@@ -139,14 +164,17 @@ void initDisplay() {
  * 
  * @param msg Flash string pointer to the debug message to display
  */
-void debugLineDisplay(const __FlashStringHelper *msg) {
+void debugLineDisplay(const __FlashStringHelper* msg) {
+
 #if defined(DEBUG_DISP) && defined(DISP)
-  if (!displayEnabled) return; // respect runtime display switch
+
+  if (!displayEnabled) return;  // respect runtime display switch
   lastDebug = millis();
   debugBufferNextLine();
-  strncpy_P(debug_buffer[debugBufferLine], (PGM_P) msg, DEBUG_BUFFER_ROWS - 1); // Kopie von Flash in SRAM
-  debug_buffer[debugBufferLine][DEBUG_BUFFER_ROWS - 1] = '\0'; // Sicherheit: Nullterminierung
+  strncpy_P(debug_buffer[debugBufferLine], (PGM_P)msg, DEBUG_BUFFER_ROWS - 1);  // Kopie von Flash in SRAM
+  debug_buffer[debugBufferLine][DEBUG_BUFFER_ROWS - 1] = '\0';                  // Sicherheit: Nullterminierung
   printDebugBuffer();
+
 #endif  //DEBUG_DISP
 }
 
@@ -160,23 +188,31 @@ void debugLineDisplay(const __FlashStringHelper *msg) {
  * @param value Long integer value to display as a debug message
  */
 void debugLineDisplay(long value) {
+
 #if defined(DEBUG_DISP) && defined(DISP)
+
   if (!displayEnabled) return;
   lastDebug = millis();
   debugBufferNextLine();
   snprintf(debug_buffer[debugBufferLine], DEBUG_BUFFER_ROWS, "%ld", value);  // long → String
   printDebugBuffer();
+
 #endif  //DEBUG_DISP
 }
 
-void debugBufferNextLine() {
+inline void debugBufferNextLine() {
+
 #if defined(DEBUG_DISP) && defined(DISP)
+
   debugBufferLine = (debugBufferLine + 1) % DEBUG_BUFFER_LINES;
-#endif                                                                 //DEBUG_DISP
+
+#endif  //DEBUG_DISP
 }
 
 void printDebugBuffer() {
+
 #if defined(DEBUG_DISP) && defined(DISP)
+
   display.firstPage();
   do {
     display.setDrawColor(1);
@@ -185,11 +221,12 @@ void printDebugBuffer() {
     display.setFont(u8g2_font_profont11_mr);
     for (uint8_t i = 1; i <= DEBUG_BUFFER_LINES; i++) {
       uint8_t idx = (debugBufferLine + i) % DEBUG_BUFFER_LINES;
-      int16_t y = i * 10; // 10 px line height for 6*11 font
+      int16_t y = i * 10;  // 10 px line height for 6*11 font
       display.setCursor(0, y);
       display.print(debug_buffer[idx]);
     }
   } while (display.nextPage());
+
 #endif  //DEBUG_DISP
 }
 
@@ -252,13 +289,13 @@ static void drawHeader() {
   char buf[9];
   formatMillisTime(buf, true);
   display.print(buf);
-  #if defined (DEBUG_DISP) || defined(DEBUG_SERIAL)
-    display.setFont(u8g2_font_profont10_tr);
-    display.setCursor(101,7);
-    display.drawRBox(98,0,30,9,3);
-    display.setDrawColor(0);
-    display.print(F("Debug"));
-  #endif
+#if defined(DEBUG_DISP) || defined(DEBUG_SERIAL)
+  display.setFont(u8g2_font_profont10_tr);
+  display.setCursor(101, 7);
+  display.drawRBox(98, 0, 30, 9, 3);
+  display.setDrawColor(0);
+  display.print(F("Debug"));
+#endif
 #endif  //DISP
 }
 
@@ -292,7 +329,7 @@ bool isDisplayEnabled() {
 void setDisplayEnabled(bool enabled) {
   if (displayEnabled == enabled) return;
   displayEnabled = enabled;
-#ifdef DISP
+#if defined(DISP)
   if (!enabled) {
     // Ensure the physical display is blanked when disabling output (paged)
     display.firstPage();
@@ -304,9 +341,9 @@ void setDisplayEnabled(bool enabled) {
 }
 
 void setDisplayContrast(uint8_t value) {
-#ifdef DISP
+#if defined(DISP)
   display.setContrast(value);
-#ifdef DEBUG_SERIAL
+#if defined(DEBUG_SERIAL)
   Serial.print(F("Contrast set to "));
   Serial.println((int)value);
 #endif

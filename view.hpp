@@ -28,28 +28,28 @@ void debugLineDisplay(long msg);
 
 template<typename T>
 inline void debugLineSerial(T msg) {
-#ifdef SERIAL_DEBUG
+#if defined(SERIAL_DEBUG)
   Serial.println(msg);
 #endif
 }
 
 template<typename T>
 inline void debugSerial(T msg) {
-#ifdef SERIAL_DEBUG
+#if defined(SERIAL_DEBUG)
   Serial.print(msg);
 #endif
 }
 
 template<typename T>
 inline void messageLineSerial(T msg) {
-#ifdef SERIAL_OUT
+#if defined(SERIAL_OUT)
   Serial.println(msg);
 #endif
 }
 
 template<typename T>
 inline void messageSerial(T msg) {
-#ifdef SERIAL_OUT
+#if defined(SERIAL_OUT)
   Serial.print(msg);
 #endif
 }

@@ -10,10 +10,8 @@
  * @license MIT
  */
 #include <stdint.h>
-#pragma once
 
-#ifndef SOILMANAGER_CONFIG_H
-#define SOILMANAGER_CONFIG_H
+#pragma once
 
 #include <Arduino.h>
 
@@ -166,5 +164,3 @@ static_assert(READ_INTERVAL_SECONDS >= 1 && (unsigned long)(F_CPU / 1024UL) * (u
 
 // Ensure the computed multiplier will fit in a uint8_t
 static_assert(((READ_TARGET_SECONDS + READ_INTERVAL_SECONDS - 1) / READ_INTERVAL_SECONDS) <= 0xFF, "READ_TARGET_SECONDS/READ_INTERVAL_SECONDS multiplier too large to store in uint8_t.");
-
-#endif

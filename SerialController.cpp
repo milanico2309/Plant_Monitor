@@ -12,7 +12,7 @@
 #include "config.hpp"
 #include "view.hpp"
 
-#ifdef SERIAL_IN
+#if defined(SERIAL_IN)
 
 namespace SerialController {
 
@@ -23,9 +23,12 @@ static bool isLineReady = false;
 // -------- helpers --------
 static const char* trimAsciiWhitespace(const char* s, size_t& len) {
   // trim leading
-  while (len && (*s==' ' || *s=='\t' || *s=='\r' || *s=='\n' || *s=='\v' || *s=='\f')) { ++s; --len; }
+  while (len && (*s == ' ' || *s == '\t' || *s == '\r' || *s == '\n' || *s == '\v' || *s == '\f')) {
+    ++s;
+    --len;
+  }
   // trim trailing
-  while (len && (s[len-1]==' ' || s[len-1]=='\t' || s[len-1]=='\r' || s[len-1]=='\n' || s[len-1]=='\v' || s[len-1]=='\f')) { --len; }
+  while (len && (s[len - 1] == ' ' || s[len - 1] == '\t' || s[len - 1] == '\r' || s[len - 1] == '\n' || s[len - 1] == '\v' || s[len - 1] == '\f')) { --len; }
   return s;
 }
 
@@ -139,9 +142,12 @@ static bool dispatchCommandLine(const char* line) {
 
   if (len == 0) return true;
 
-  if (strcmp(p, "HELP") == 0) { printHelpCommands(); return true; }
+  if (strcmp(p, "HELP") == 0) {
+    printHelpCommands();
+    return true;
+  }
 
-  if (len >= 2 && p[0]=='T' && p[1]=='=') {
+  if (len >= 2 && p[0] == 'T' && p[1] == '=') {
     return handleTimeCommand(p + 2);
   }
   if (len >= 5 && strncmp(p, "DISP=", 5) == 0) {
@@ -167,14 +173,14 @@ static bool dispatchCommandLine(const char* line) {
  * Buffer overflow resets the input buffer to avoid ambiguous states.
  */
 void pollSerial() {
-#ifdef SERIAL_OUT
+#if defined(SERIAL_OUT)
   while (Serial.available()) {
     char c = (char)Serial.read();
-    if (c == '\r') continue; // ignore CR
-    if (c == '\n') {         // line complete
+    if (c == '\r') continue;  // ignore CR
+    if (c == '\n') {          // line complete
       receiveBuffer[receiveLength] = '\0';
       isLineReady = true;
-      break;                  // process next time to keep this non-blocking
+      break;  // process next time to keep this non-blocking
     }
     if ((size_t)receiveLength + 1 < sizeof(receiveBuffer)) {
       receiveBuffer[receiveLength++] = c;
@@ -183,7 +189,7 @@ void pollSerial() {
       receiveLength = 0;
     }
   }
-#endif // SERIAL_OUT
+#endif  // SERIAL_OUT
 }
 
 /**
@@ -201,9 +207,8 @@ void processPendingCommands() {
   // Reset input state
   receiveLength = 0;
   isLineReady = false;
-
 }
 
-} // namespace SerialController
+}  // namespace SerialController
 
-#endif // SERIAL_IN
+#endif  // SERIAL_IN

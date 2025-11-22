@@ -10,8 +10,6 @@
  * @ingroup serial_ctrl
  */
 #pragma once
-#ifndef SERIAL_CONTROLLER_H
-#define SERIAL_CONTROLLER_H
 
 #include <Arduino.h>
 
@@ -54,6 +52,4 @@ void pollSerial();
  */
 void processPendingCommands();
 
-} // namespace SerialController
-
-#endif // SERIAL_CONTROLLER_H
+}  // namespace SerialController

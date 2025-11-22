@@ -37,9 +37,9 @@ void readSensors() {
  */
 void setup() {
 
-wdt_enable(WDTO_8S);
+  wdt_enable(WDTO_8S);
 
-View::initSerial();
+  View::initSerial();
 
   uint8_t flags = MCUSR;
   Serial.print("MCUSR: 0x");
@@ -52,8 +52,8 @@ View::initSerial();
 
   MCUSR = 0;
 
-View::initDisplay();
-//Initialize memory
+  View::initDisplay();
+  //Initialize memory
   Lib::initCtx();
   Lib::readSensorsAndUpdateMemory();
   View::debugLine(F("starting..."));
@@ -62,14 +62,14 @@ View::initDisplay();
   // We'll use prescaler 1024 and compute OCR1A such that the compare match
   // interval equals READ_INTERVAL_SECONDS. READ_INTERVAL_SECONDS must be
   // small enough to fit in 16-bit OCR1A with prescaler 1024 (see config.hpp).
-  noInterrupts(); // ensure atomic timer config
+  noInterrupts();  // ensure atomic timer config
   TCCR1A = 0;
   TCCR1B = 0;
-  TCCR1B |= (1 << WGM12); // CTC mode (Clear Timer on Compare Match)
+  TCCR1B |= (1 << WGM12);  // CTC mode (Clear Timer on Compare Match)
   // Calculate OCR1A: OCR1A = (F_CPU / prescaler) * seconds - 1
-  const unsigned long ticksPerSec = (unsigned long) (F_CPU / 1024UL);
-  const unsigned long ocr = (ticksPerSec * (unsigned long) READ_INTERVAL_SECONDS) - 1UL;
-  OCR1A = (uint16_t) ocr;
+  const unsigned long ticksPerSec = (unsigned long)(F_CPU / 1024UL);
+  const unsigned long ocr = (ticksPerSec * (unsigned long)READ_INTERVAL_SECONDS) - 1UL;
+  OCR1A = (uint16_t)ocr;
   // set prescaler to 1024
   TCCR1B |= (1 << CS12) | (1 << CS10);
   // enable Output Compare A Match Interrupt
@@ -85,7 +85,7 @@ static_assert(READ_MULTIPLIER >= 1, "READ_MULTIPLIER calculation error");
 static volatile uint8_t timerTickCounter = 0;
 
 // Timer1 Compare Match A ISR: fires every READ_INTERVAL_SECONDS
-ISR (TIMER1_COMPA_vect) {
+ISR(TIMER1_COMPA_vect) {
   if (++timerTickCounter >= READ_MULTIPLIER) {
     timerTickCounter = 0;
     Lib::requestSensorRead();
@@ -101,7 +101,7 @@ ISR (TIMER1_COMPA_vect) {
 void loop() {
 
   wdt_reset();
-#ifdef SERIAL_OUT
+#if defined(SERIAL_OUT)
   SerialController::pollSerial();
   SerialController::processPendingCommands();
 #endif
