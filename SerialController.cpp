@@ -117,6 +117,8 @@ static void printHelpCommands() {
   View::messageLineSerial(F("  CONTRAST=<v>  set OLED contrast (0-255)"));
   View::messageLineSerial(F("  READ[=NOW]    trigger immediate sensor read"));
   View::messageLineSerial(F("  PRINT[=NOW]   print current values"));
+  View::messageLineSerial(F("  HELP          show this list"));
+  View::messageLineSerial(F("  RESET         reset the device"));
 }
 
 /**
@@ -134,6 +136,12 @@ static bool handleContrastCommand(const char* arg) {
   }
   View::messageLine(F("CMD err: CONTRAST expects 0-255"));
   return true;
+}
+
+static bool handleResetCommand() {
+  View::messageLine(F("CMD ok: RESET"));
+  Lib::resetDevice();
+  return false;
 }
 
 static bool dispatchCommandLine(const char* line) {
@@ -161,6 +169,9 @@ static bool dispatchCommandLine(const char* line) {
   }
   if (strcmp(p, "PRINT") == 0 || strcmp(p, "PRINT=NOW") == 0) {
     return handlePrintCommand(nullptr);
+  }
+  if (strcmp(p, "RESET") == 0) {
+    return handleResetCommand();
   }
   return false;
 }

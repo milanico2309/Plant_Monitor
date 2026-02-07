@@ -17,59 +17,71 @@
  * @brief Contains sensor logic and the in-memory context for measured values.
  */
 namespace Lib {
-/**
-     * @brief Holds the latest sensor values as percentages (0–99).
-     */
-struct SensorContext {
-  uint8_t values[MAX_SENSORS];
-};
+    /**
+         * @brief Holds the latest sensor values as percentages (0–99).
+         */
+    struct SensorContext {
+        uint8_t values[MAX_SENSORS];
+    };
 
-/**
-     * @brief Global runtime context containing the latest readings.
-     */
-extern SensorContext ctx;
+    /**
+         * @brief Global runtime context containing the latest readings.
+         */
+    extern SensorContext ctx;
 
-/**
-     * @brief Returns the sensor name stored in flash for a given index.
-     * @param idx Sensor index starting at 0.
-     * @return Flash string helper pointer to the configured sensor name.
-     */
-const __FlashStringHelper *getSensorName(uint8_t idx);
+    /**
+         * @brief Returns the sensor name stored in flash for a given index.
+         * @param idx Sensor index starting at 0.
+         * @return Flash string helper pointer to the configured sensor name.
+         */
+    const __FlashStringHelper *getSensorName(uint8_t idx);
 
-/**
-     * @brief Reads all configured sensors and updates the global context.
-     */
-void readSensorsAndUpdateMemory();
+    /**
+         * @brief Reads all configured sensors and updates the global context.
+         */
+    void readSensorsAndUpdateMemory();
 
-/**
-     * @brief Set the millisecond offset used to compute the effective time.
-     * @param offset Signed offset in milliseconds; effectiveTime = millis() + offset
-     */
-void setTimeOfDayMillisOffset(long offset);
+    /**
+         * @brief Set the millisecond offset used to compute the effective time.
+         * @param offset Signed offset in milliseconds; effectiveTime = millis() + offset
+         */
+    void setTimeOfDayMillisOffset(long offset);
 
-/**
-     * @brief Return the effective current time in milliseconds (millis() + offset).
-     */
-unsigned long getTimeOfDayAsMillis();
+    /**
+         * @brief Return the effective current time in milliseconds (millis() + offset).
+         */
+    unsigned long getTimeOfDayAsMillis();
 
-/**
-     * @brief Request a sensor read to be performed by the main loop (can be set
-     * from other modules or an ISR).
-     */
-void requestSensorRead();
+    /**
+         * @brief Request a sensor read to be performed by the main loop (can be set
+         * from other modules or an ISR).
+         */
+    void requestSensorRead();
 
-/**
-     * @brief Atomically consume and clear the pending sensor-read request.
-     * @return true if a request was pending and was cleared, false otherwise.
-     */
-bool hasSensorReadRequest();
+    /**
+         * @brief Atomically consume and clear the pending sensor-read request.
+         * @return true if a request was pending and was cleared, false otherwise.
+         */
+    bool hasSensorReadRequest();
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////    SETUP    ///////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-/**
-     * @brief Initializes the global context and configures sensor input pins.
+    /**
+     * @brief Triggers a device reset using the watchdog timer.
+     *
+     * This function enables the watchdog timer with a timeout of 15 milliseconds
+     * and enters an infinite loop, causing the watchdog to initiate a hardware reset
+     * for the device.
+     *
+     * @note This function will not return, as the infinite loop relies on the
+     *       watchdog to perform the reset.
      */
-void initCtx();
-}  // namespace Lib
+    void resetDevice();
+
+    ///////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////    SETUP    ///////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+
+    /**
+         * @brief Initializes the global context and configures sensor input pins.
+         */
+    void initCtx();
+} // namespace Lib

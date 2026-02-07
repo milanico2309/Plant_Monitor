@@ -164,7 +164,7 @@ void initDisplay() {
  * 
  * @param msg Flash string pointer to the debug message to display
  */
-void debugLineDisplay(const __FlashStringHelper* msg) {
+void printLineDisplay(const __FlashStringHelper* msg) {
 
 #if defined(DEBUG_DISP) && defined(DISP)
 
@@ -187,7 +187,7 @@ void debugLineDisplay(const __FlashStringHelper* msg) {
  * 
  * @param value Long integer value to display as a debug message
  */
-void debugLineDisplay(long value) {
+void printLineDisplay(long value) {
 
 #if defined(DEBUG_DISP) && defined(DISP)
 

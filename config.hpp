@@ -109,11 +109,11 @@ constexpr uint8_t SENSOR_3_PIN = A2;
 /**
  * @brief Calibrated minimum raw value (sensor immersed in water).
  */
-constexpr uint16_t SENSOR_CALIBRATED_MIN = 360;
+constexpr uint16_t SENSOR_CALIBRATED_MIN = 320;
 /**
  * @brief Calibrated maximum raw value (sensor in dry air/soil).
  */
-constexpr uint16_t SENSOR_CALIBRATED_MAX = 790;
+constexpr uint16_t SENSOR_CALIBRATED_MAX = 770;
 
 /************************************************************************/
 /** Do NOT edit anything beyond this point (unless you know what you do) **/

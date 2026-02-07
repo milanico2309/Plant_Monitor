@@ -17,119 +17,132 @@
  * @ingroup view_ui
  */
 namespace View {
+    /**
+     * @brief Append a debug line to the on-device debug buffer and redraw it.
+     * @param msg Flash-stored message to show.
+     */
+    void printLineDisplay(const __FlashStringHelper *msg);
 
-/**
- * @brief Append a debug line to the on-device debug buffer and redraw it.
- * @param msg Flash-stored message to show.
- */
-void debugLineDisplay(const __FlashStringHelper* msg);
+    void printLineDisplay(long msg);
 
-void debugLineDisplay(long msg);
+    template<typename T>
+    inline void printDisplay(T msg) {
+        printLineDisplay(msg); //TODO: implement print to Buffer without newline
+    }
 
-template<typename T>
-inline void debugLineSerial(T msg) {
+    template<typename T>
+    inline void debugDisplay(T msg) {
+        printDisplay(msg);
+    }
+    template<typename T>
+    inline void debugLineDisplay(T msg) {
+        printLineDisplay(msg);
+    }
+
+    template<typename T>
+    inline void debugLineSerial(T msg) {
 #if defined(SERIAL_DEBUG)
-  Serial.println(msg);
+        Serial.println(msg);
 #endif
-}
+    }
 
-template<typename T>
-inline void debugSerial(T msg) {
+    template<typename T>
+    inline void debugSerial(T msg) {
 #if defined(SERIAL_DEBUG)
-  Serial.print(msg);
+        Serial.print(msg);
 #endif
-}
+    }
 
-template<typename T>
-inline void messageLineSerial(T msg) {
+    template<typename T>
+    inline void messageLineSerial(T msg) {
 #if defined(SERIAL_OUT)
-  Serial.println(msg);
+        Serial.println(msg);
 #endif
-}
+    }
 
-template<typename T>
-inline void messageSerial(T msg) {
+    template<typename T>
+    inline void messageSerial(T msg) {
 #if defined(SERIAL_OUT)
-  Serial.print(msg);
+        Serial.print(msg);
 #endif
-}
+    }
 
-template<typename T>
-inline void debugLine(T msg) {
-  debugLineSerial(msg);
-  debugLineDisplay(msg);
-}
+    template<typename T>
+    inline void debugLine(T msg) {
+        debugLineSerial(msg);
+        debugLineDisplay(msg);
+    }
 
-template<typename T>
-inline void debug(T msg) {
-  debugSerial(msg);
-  debugDisplay(msg);
-}
+    template<typename T>
+    inline void debug(T msg) {
+        debugSerial(msg);
+        debugDisplay(msg);
+    }
 
-template<typename T>
-inline void messageLine(T msg) {
-  messageLineSerial(msg);
-  debugLineDisplay(msg);
-}
+    template<typename T>
+    inline void messageLine(T msg) {
+        messageLineSerial(msg);
+        debugLineDisplay(msg);
+    }
 
-template<typename T>
-inline void message(T msg) {
-  messageSerial(msg);
-  debugLineDisplay(msg);
-}
+    template<typename T>
+    inline void message(T msg) {
+        messageSerial(msg);
+        debugLineDisplay(msg);
+    }
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////   SERIAL   ////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////   SERIAL   ////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
 
-/**
-   * @brief Initialize serial communications according to @ref BAUDRATE.
-   */
-void initSerial();
+    /**
+       * @brief Initialize serial communications according to @ref BAUDRATE.
+       */
+    void initSerial();
 
 
-/**
-   * @brief Print human-friendly values over serial (requires @ref SERIAL_LOG).
-   */
-void valuesSerialPrint();
+    /**
+       * @brief Print human-friendly values over serial (requires @ref SERIAL_LOG).
+       */
+    void valuesSerialPrint();
 
-/**
-   * @brief Print values formatted for the Arduino Serial Plotter (requires @ref SERIAL_PLOT).
-   */
-void valuesSerialPlot();
+    /**
+       * @brief Print values formatted for the Arduino Serial Plotter (requires @ref SERIAL_PLOT).
+       */
+    void valuesSerialPlot();
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////   DISPLAY   ///////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////   DISPLAY   ///////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
 
-/**
-   * @brief Initialize the OLED display (only when @ref DISP is enabled).
-   */
-void initDisplay();
+    /**
+       * @brief Initialize the OLED display (only when @ref DISP is enabled).
+       */
+    void initDisplay();
 
-/**
-   * @brief Render the main screen showing sensor values and status.
-   */
-void printMainScreen();
+    /**
+       * @brief Render the main screen showing sensor values and status.
+       */
+    void printMainScreen();
 
-/**
-   * @brief Render a temporary update screen while sensors are being read.
-   */
-void printUpdateScreen();
+    /**
+       * @brief Render a temporary update screen while sensors are being read.
+       */
+    void printUpdateScreen();
 
-/**
-   * @brief Enable or disable the OLED display output at runtime.
-   * When disabling, the display is cleared once.
-   */
-void setDisplayEnabled(bool enabled);
+    /**
+       * @brief Enable or disable the OLED display output at runtime.
+       * When disabling, the display is cleared once.
+       */
+    void setDisplayEnabled(bool enabled);
 
-/**
-   * @brief Query whether the display output is currently enabled.
-   */
-bool isDisplayEnabled();
+    /**
+       * @brief Query whether the display output is currently enabled.
+       */
+    bool isDisplayEnabled();
 
-/**
-   * @brief Set OLED display contrast at runtime (0–255). Values will be clamped.
-   */
-void setDisplayContrast(uint8_t value);
-}  // namespace View
+    /**
+       * @brief Set OLED display contrast at runtime (0–255). Values will be clamped.
+       */
+    void setDisplayContrast(uint8_t value);
+} // namespace View
